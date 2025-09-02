@@ -1,5 +1,5 @@
 :root {
-  --background: #111827; /* gray-900 */
+  --background: #121212; /* neutral gray */
   --foreground: #e5e7eb; /* gray-200 */
   --muted: #9ca3af;      /* gray-400 */
   --panel: rgba(55, 65, 81, 0.8); /* gray-700 */
@@ -7,7 +7,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #111827; /* gray-900 */
+    --background: #121212; /* neutral gray */
     --foreground: #e5e7eb;
   }
 }
