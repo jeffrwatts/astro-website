@@ -152,11 +152,12 @@ export default async function ImageDetail({ params }: { params: { filename: stri
         <figure style={{ margin: 0 }}>
           <div
             style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}
-            onTouchStart={(e) => {
-              (e.currentTarget as any)._touchX = e.touches[0].clientX;
+            onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
+              e.currentTarget.dataset.touchX = String(e.touches[0].clientX);
             }}
-            onTouchEnd={(e) => {
-              const startX = (e.currentTarget as any)._touchX as number | undefined;
+            onTouchEnd={(e: React.TouchEvent<HTMLDivElement>) => {
+              const startXStr = e.currentTarget.dataset.touchX;
+              const startX = startXStr ? parseFloat(startXStr) : undefined;
               if (startX == null) return;
               const endX = e.changedTouches[0].clientX;
               const dx = endX - startX;
@@ -198,8 +199,8 @@ export default async function ImageDetail({ params }: { params: { filename: stri
                   opacity: 0,
                   transition: "opacity 150ms ease-in-out",
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as any).style.opacity = "1"; }}
-                onMouseLeave={(e) => { (e.currentTarget as any).style.opacity = "0"; }}
+                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0"; }}
               >
                 <span style={{ fontSize: 24 }}>❮</span>
               </Link>
@@ -223,8 +224,8 @@ export default async function ImageDetail({ params }: { params: { filename: stri
                   opacity: 0,
                   transition: "opacity 150ms ease-in-out",
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as any).style.opacity = "1"; }}
-                onMouseLeave={(e) => { (e.currentTarget as any).style.opacity = "0"; }}
+                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0"; }}
               >
                 <span style={{ fontSize: 24 }}>❯</span>
               </Link>
