@@ -54,22 +54,22 @@ export default function ImageViewer({ url, title, prevHref, nextHref }: Props) {
             top: "50%",
             left: 12,
             transform: "translateY(-50%)",
-            background: "rgba(0,0,0,0.45)",
-            color: "#e5e7eb",
-            width: 44,
-            height: 72,
+            background: "rgba(75,85,99,0.65)",
+            color: "#f3f4f6",
+            width: 56,
+            height: 96,
             borderRadius: 12,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            opacity: 0.25,
+            opacity: 0.35,
             transition: "opacity 150ms ease-in-out",
           }}
           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
-          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0.25"; }}
+          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0.35"; }}
           aria-label="Previous image"
         >
-          <span style={{ fontSize: 24 }}>❮</span>
+          <span style={{ fontSize: 32 }}>❮</span>
         </Link>
       )}
       {nextHref && (
@@ -80,22 +80,22 @@ export default function ImageViewer({ url, title, prevHref, nextHref }: Props) {
             top: "50%",
             right: 12,
             transform: "translateY(-50%)",
-            background: "rgba(0,0,0,0.45)",
-            color: "#e5e7eb",
-            width: 44,
-            height: 72,
+            background: "rgba(75,85,99,0.65)",
+            color: "#f3f4f6",
+            width: 56,
+            height: 96,
             borderRadius: 12,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            opacity: 0.25,
+            opacity: 0.35,
             transition: "opacity 150ms ease-in-out",
           }}
           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
-          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0.25"; }}
+          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0.35"; }}
           aria-label="Next image"
         >
-          <span style={{ fontSize: 24 }}>❯</span>
+          <span style={{ fontSize: 32 }}>❯</span>
         </Link>
       )}
     </div>

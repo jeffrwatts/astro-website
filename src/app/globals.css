@@ -1,13 +1,13 @@
 :root {
-  --background: #0f172a; /* slate-900 */
+  --background: #111827; /* gray-900 */
   --foreground: #e5e7eb; /* gray-200 */
-  --muted: #94a3b8;      /* slate-400 */
-  --panel: rgba(15, 23, 42, 0.8);
+  --muted: #9ca3af;      /* gray-400 */
+  --panel: rgba(55, 65, 81, 0.8); /* gray-700 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0b1220;
+    --background: #0f172a; /* fallback darker */
     --foreground: #e5e7eb;
   }
 }
