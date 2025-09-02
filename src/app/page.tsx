@@ -1,23 +1,86 @@
 import { Storage } from "@google-cloud/storage";
+import { unstable_noStore as noStore } from "next/cache";
 
 const BUCKET = "astro-website-images-astrowebsite-470903";
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 async function listBucketImages(): Promise<string[]> {
 	const storage = new Storage();
-	const [files] = await storage.bucket(BUCKET).getFiles();
+	const [files] = await storage.bucket(BUCKET).getFiles({ autoPaginate: true });
 	return files
 		.map((f) => f.name)
 		.filter((name) => /\.(jpe?g|png|webp|tiff?)$/i.test(name))
 		.sort();
 }
 
-export default async function Home() {
-  const names = await listBucketImages();
-  const items = names.map((file) => ({ file }));
+interface ManifestEntry {
+	objectId: string;
+	displayName?: string;
+	ra?: number;
+	dec?: number;
+	constellation?: string;
+	imageFilename: string;
+}
 
-	// Tiny cache-buster changes hourly to avoid stale browser caches.
-	const bust = Math.floor(Date.now() / (60 * 60 * 1000));
+async function fetchManifest(): Promise<Record<string, ManifestEntry>> {
+	const storage = new Storage();
+	const file = storage.bucket(BUCKET).file("web_images.json");
+	try {
+		const [exists] = await file.exists();
+		if (!exists) return {};
+		const [buf] = await file.download();
+		const arr = JSON.parse(buf.toString()) as ManifestEntry[];
+		const map: Record<string, ManifestEntry> = {};
+		for (const entry of arr) {
+			if (entry && entry.imageFilename) {
+				map[entry.imageFilename] = entry;
+			}
+		}
+		return map;
+	} catch {
+		return {};
+	}
+}
+
+function formatRightAscension(hours: number): string {
+	// Convert decimal hours to HH h MM m SS.s s
+	const normalized = ((hours % 24) + 24) % 24;
+	const totalSeconds = normalized * 3600;
+	const hh = Math.floor(totalSeconds / 3600);
+	const mm = Math.floor((totalSeconds % 3600) / 60);
+	const ss = totalSeconds - hh * 3600 - mm * 60;
+	const hhStr = String(hh).padStart(2, "0");
+	const mmStr = String(mm).padStart(2, "0");
+	const ssStr = ss.toFixed(1).padStart(4, "0");
+	return `${hhStr}h ${mmStr}m ${ssStr}s`;
+}
+
+function formatDeclination(degrees: number): string {
+	// Convert decimal degrees to DD° MM' SS.s" with N/S suffix
+	const isNegative = degrees < 0;
+	const suffix = isNegative ? "S" : "N";
+	const abs = Math.abs(degrees);
+	const totalSeconds = abs * 3600;
+	const dd = Math.floor(totalSeconds / 3600);
+	const mm = Math.floor((totalSeconds % 3600) / 60);
+	const ss = totalSeconds - dd * 3600 - mm * 60;
+	const ddStr = String(dd).padStart(2, "0");
+	const mmStr = String(mm).padStart(2, "0");
+	const ssStr = ss.toFixed(1).padStart(4, "0");
+	return `${ddStr}° ${mmStr}' ${ssStr}" ${suffix}`;
+}
+
+export default async function Home() {
+  noStore();
+  const [names, manifestByFilename] = await Promise.all([
+    listBucketImages(),
+    fetchManifest(),
+  ]);
+  const items = names.map((file) => ({ file, meta: manifestByFilename[file] }));
+
+	// Per-request cache-buster to avoid stale browser caches.
+	const bust = Date.now();
 
 	return (
 		<main style={{ minHeight: "100vh", padding: 24 }}>
@@ -28,14 +91,25 @@ export default async function Home() {
 				<ul style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
 					{items.map((item) => {
 						const name = item.file;
+						const meta = (item as { meta?: ManifestEntry }).meta;
 						const url = `https://storage.googleapis.com/${BUCKET}/${name}?v=${bust}`;
-						const title = name;
+						const title = meta?.displayName ?? name;
 						return (
 							<li key={name}>
 								<figure>
 									<img src={url} alt={title} style={{ width: "100%", height: "auto", borderRadius: 8 }} />
 									<figcaption style={{ marginTop: 8 }}>
 										<div>{title}</div>
+										{meta && (
+											<div style={{ color: "#666", fontSize: 14, marginTop: 4 }}>
+												{meta.constellation && <div>Constellation: {meta.constellation}</div>}
+												{typeof meta.ra === "number" && typeof meta.dec === "number" && (
+													<div>
+														RA: {formatRightAscension(meta.ra)} · Dec: {formatDeclination(meta.dec)}
+													</div>
+												)}
+											</div>
+										)}
 									</figcaption>
 								</figure>
 							</li>
