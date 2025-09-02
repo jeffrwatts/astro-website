@@ -150,7 +150,25 @@ export default async function ImageDetail({ params }: { params: { filename: stri
       <h1 style={{ margin: "16px 0" }}>{title}</h1>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 340px", gap: 24, alignItems: "start" }}>
         <figure style={{ margin: 0 }}>
-          <div style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}>
+          <div
+            style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}
+            onTouchStart={(e) => {
+              (e.currentTarget as any)._touchX = e.touches[0].clientX;
+            }}
+            onTouchEnd={(e) => {
+              const startX = (e.currentTarget as any)._touchX as number | undefined;
+              if (startX == null) return;
+              const endX = e.changedTouches[0].clientX;
+              const dx = endX - startX;
+              if (Math.abs(dx) > 40) {
+                if (dx < 0 && nextName) {
+                  window.location.href = `/image/${encodeURIComponent(nextName)}`;
+                } else if (dx > 0 && prevName) {
+                  window.location.href = `/image/${encodeURIComponent(prevName)}`;
+                }
+              }
+            }}
+          >
             <Image
               src={url}
               alt={title}
@@ -160,25 +178,58 @@ export default async function ImageDetail({ params }: { params: { filename: stri
               quality={70}
               priority
             />
+
+            {prevName && (
+              <Link
+                href={`/image/${encodeURIComponent(prevName)}`}
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: 12,
+                  transform: "translateY(-50%)",
+                  background: "rgba(0,0,0,0.45)",
+                  color: "#e5e7eb",
+                  width: 44,
+                  height: 72,
+                  borderRadius: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  opacity: 0,
+                  transition: "opacity 150ms ease-in-out",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as any).style.opacity = "1"; }}
+                onMouseLeave={(e) => { (e.currentTarget as any).style.opacity = "0"; }}
+              >
+                <span style={{ fontSize: 24 }}>❮</span>
+              </Link>
+            )}
+            {nextName && (
+              <Link
+                href={`/image/${encodeURIComponent(nextName)}`}
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  right: 12,
+                  transform: "translateY(-50%)",
+                  background: "rgba(0,0,0,0.45)",
+                  color: "#e5e7eb",
+                  width: 44,
+                  height: 72,
+                  borderRadius: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  opacity: 0,
+                  transition: "opacity 150ms ease-in-out",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as any).style.opacity = "1"; }}
+                onMouseLeave={(e) => { (e.currentTarget as any).style.opacity = "0"; }}
+              >
+                <span style={{ fontSize: 24 }}>❯</span>
+              </Link>
+            )}
           </div>
-          {(prevName || nextName) && (
-            <figcaption style={{ marginTop: 12, display: "flex", justifyContent: "space-between", gap: 12 }}>
-              <div>
-                {prevName && (
-                  <Link href={`/image/${encodeURIComponent(prevName)}`} style={{ color: "#06c" }}>
-                    ← Previous
-                  </Link>
-                )}
-              </div>
-              <div>
-                {nextName && (
-                  <Link href={`/image/${encodeURIComponent(nextName)}`} style={{ color: "#06c" }}>
-                    Next →
-                  </Link>
-                )}
-              </div>
-            </figcaption>
-          )}
         </figure>
         <aside style={{ position: "sticky", top: 24, alignSelf: "start" }}>
           <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
