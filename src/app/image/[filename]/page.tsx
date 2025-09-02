@@ -1,6 +1,7 @@
 import { Storage } from "@google-cloud/storage";
 import { unstable_noStore as noStore } from "next/cache";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 const BUCKET = "astro-website-images-astrowebsite-470903";
@@ -130,7 +131,7 @@ export default async function ImageDetail({ params }: { params: { filename: stri
 
   return (
     <main style={{ minHeight: "100vh", padding: 24 }}>
-      <a href="/" style={{ color: "#06c" }}>&larr; Back to gallery</a>
+      <Link href="/" style={{ color: "#06c" }}>&larr; Back to gallery</Link>
       <h1 style={{ margin: "16px 0" }}>{title}</h1>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 340px", gap: 24, alignItems: "start" }}>
         <figure style={{ margin: 0 }}>

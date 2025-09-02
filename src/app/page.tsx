@@ -1,5 +1,6 @@
 import { Storage } from "@google-cloud/storage";
 import { unstable_noStore as noStore } from "next/cache";
+import Link from "next/link";
 
 const BUCKET = "astro-website-images-astrowebsite-470903";
 export const dynamic = "force-dynamic";
@@ -97,12 +98,12 @@ export default async function Home() {
 						return (
 							<li key={name}>
 								<figure>
-									<a href={`/image/${encodeURIComponent(name)}`}>
+									<Link href={`/image/${encodeURIComponent(name)}`}>
 										<img src={url} alt={title} style={{ width: "100%", height: "auto", borderRadius: 8 }} />
-									</a>
+									</Link>
 									<figcaption style={{ marginTop: 8 }}>
 										<div>
-											<a href={`/image/${encodeURIComponent(name)}`} style={{ color: "#06c", textDecoration: "none" }}>{title}</a>
+											<Link href={`/image/${encodeURIComponent(name)}`} style={{ color: "#06c", textDecoration: "none" }}>{title}</Link>
 										</div>
 										{meta && (
 											<div style={{ color: "#666", fontSize: 14, marginTop: 4 }}>
