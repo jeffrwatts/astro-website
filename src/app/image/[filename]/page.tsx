@@ -2,6 +2,7 @@ import { Storage } from "@google-cloud/storage";
 import { unstable_noStore as noStore } from "next/cache";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 const BUCKET = "astro-website-images-astrowebsite-470903";
@@ -135,7 +136,17 @@ export default async function ImageDetail({ params }: { params: { filename: stri
       <h1 style={{ margin: "16px 0" }}>{title}</h1>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 340px", gap: 24, alignItems: "start" }}>
         <figure style={{ margin: 0 }}>
-          <img src={url} alt={title} style={{ width: "100%", height: "auto", borderRadius: 8 }} />
+          <div style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}>
+            <Image
+              src={url}
+              alt={title}
+              fill
+              style={{ objectFit: "contain", background: "#000" }}
+              sizes="(max-width: 1024px) 100vw, 900px"
+              quality={70}
+              priority
+            />
+          </div>
         </figure>
         <aside style={{ position: "sticky", top: 24, alignSelf: "start" }}>
           <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
