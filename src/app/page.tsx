@@ -49,6 +49,9 @@ export default async function Home() {
 		items = names.map((file) => ({ file }));
 	}
 
+	// Tiny cache-buster changes hourly to avoid stale browser caches.
+	const bust = Math.floor(Date.now() / (60 * 60 * 1000));
+
 	return (
 		<main style={{ minHeight: "100vh", padding: 24 }}>
 			<h1 style={{ marginBottom: 16 }}>Gallery</h1>
@@ -58,7 +61,7 @@ export default async function Home() {
 				<ul style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
 					{items.map((item) => {
 						const name = item.file;
-						const url = `https://storage.googleapis.com/${BUCKET}/${name}`;
+						const url = `https://storage.googleapis.com/${BUCKET}/${name}?v=${bust}`;
 						const title = item.title ?? name;
 						return (
 							<li key={name}>
