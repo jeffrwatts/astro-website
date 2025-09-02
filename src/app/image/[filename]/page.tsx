@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import ImageViewer from "@/components/ImageViewer";
 
 const BUCKET = "astro-website-images-astrowebsite-470903";
 export const dynamic = "force-dynamic";
@@ -150,87 +151,12 @@ export default async function ImageDetail({ params }: { params: { filename: stri
       <h1 style={{ margin: "16px 0" }}>{title}</h1>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 340px", gap: 24, alignItems: "start" }}>
         <figure style={{ margin: 0 }}>
-          <div
-            style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}
-            onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
-              e.currentTarget.dataset.touchX = String(e.touches[0].clientX);
-            }}
-            onTouchEnd={(e: React.TouchEvent<HTMLDivElement>) => {
-              const startXStr = e.currentTarget.dataset.touchX;
-              const startX = startXStr ? parseFloat(startXStr) : undefined;
-              if (startX == null) return;
-              const endX = e.changedTouches[0].clientX;
-              const dx = endX - startX;
-              if (Math.abs(dx) > 40) {
-                if (dx < 0 && nextName) {
-                  window.location.href = `/image/${encodeURIComponent(nextName)}`;
-                } else if (dx > 0 && prevName) {
-                  window.location.href = `/image/${encodeURIComponent(prevName)}`;
-                }
-              }
-            }}
-          >
-            <Image
-              src={url}
-              alt={title}
-              fill
-              style={{ objectFit: "contain", background: "#000" }}
-              sizes="(max-width: 1024px) 100vw, 900px"
-              quality={70}
-              priority
-            />
-
-            {prevName && (
-              <Link
-                href={`/image/${encodeURIComponent(prevName)}`}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: 12,
-                  transform: "translateY(-50%)",
-                  background: "rgba(0,0,0,0.45)",
-                  color: "#e5e7eb",
-                  width: 44,
-                  height: 72,
-                  borderRadius: 12,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  opacity: 0,
-                  transition: "opacity 150ms ease-in-out",
-                }}
-                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0"; }}
-              >
-                <span style={{ fontSize: 24 }}>❮</span>
-              </Link>
-            )}
-            {nextName && (
-              <Link
-                href={`/image/${encodeURIComponent(nextName)}`}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: 12,
-                  transform: "translateY(-50%)",
-                  background: "rgba(0,0,0,0.45)",
-                  color: "#e5e7eb",
-                  width: 44,
-                  height: 72,
-                  borderRadius: 12,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  opacity: 0,
-                  transition: "opacity 150ms ease-in-out",
-                }}
-                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0"; }}
-              >
-                <span style={{ fontSize: 24 }}>❯</span>
-              </Link>
-            )}
-          </div>
+          <ImageViewer
+            url={url}
+            title={title}
+            prevHref={prevName ? `/image/${encodeURIComponent(prevName)}` : undefined}
+            nextHref={nextName ? `/image/${encodeURIComponent(nextName)}` : undefined}
+          />
         </figure>
         <aside style={{ position: "sticky", top: 24, alignSelf: "start" }}>
           <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
