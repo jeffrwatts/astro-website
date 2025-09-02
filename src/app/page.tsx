@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -14,6 +15,9 @@ export default function Home() {
           style={{ width: "100%", height: "auto", borderRadius: 8 }}
           priority
         />
+        <div style={{ marginTop: 16 }}>
+          <Link href="/gallery">View Gallery</Link>
+        </div>
       </div>
     </main>
   );
