@@ -156,6 +156,7 @@ export default async function ImageDetail({ params }: { params: { filename: stri
             title={title}
             prevHref={prevName ? `/image/${encodeURIComponent(prevName)}` : undefined}
             nextHref={nextName ? `/image/${encodeURIComponent(nextName)}` : undefined}
+            closeHref="/"
           />
         </figure>
         <aside style={{ position: "sticky", top: 24, alignSelf: "start" }}>
