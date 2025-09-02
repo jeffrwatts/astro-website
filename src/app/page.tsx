@@ -97,9 +97,13 @@ export default async function Home() {
 						return (
 							<li key={name}>
 								<figure>
-									<img src={url} alt={title} style={{ width: "100%", height: "auto", borderRadius: 8 }} />
+									<a href={`/image/${encodeURIComponent(name)}`}>
+										<img src={url} alt={title} style={{ width: "100%", height: "auto", borderRadius: 8 }} />
+									</a>
 									<figcaption style={{ marginTop: 8 }}>
-										<div>{title}</div>
+										<div>
+											<a href={`/image/${encodeURIComponent(name)}`} style={{ color: "#06c", textDecoration: "none" }}>{title}</a>
+										</div>
 										{meta && (
 											<div style={{ color: "#666", fontSize: 14, marginTop: 4 }}>
 												{meta.constellation && <div>Constellation: {meta.constellation}</div>}
