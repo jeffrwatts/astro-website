@@ -45,6 +45,15 @@ async function ensureFileExists(filename: string): Promise<boolean> {
 	return exists;
 }
 
+async function listBucketImages(): Promise<string[]> {
+	const storage = new Storage();
+	const [files] = await storage.bucket(BUCKET).getFiles({ autoPaginate: true });
+	return files
+		.map((f) => f.name)
+		.filter((name) => /(\.(jpe?g|png|webp|tiff?))$/i.test(name))
+		.sort();
+}
+
 export async function generateMetadata({ params }: { params: { filename: string } }): Promise<Metadata> {
   const raw = params.filename;
   const filename = decodeURIComponent(raw);
@@ -130,6 +139,11 @@ export default async function ImageDetail({ params }: { params: { filename: stri
   const bust = Date.now();
   const url = `https://storage.googleapis.com/${BUCKET}/${filename}?v=${bust}`;
 
+  const allNames = await listBucketImages();
+  const index = allNames.indexOf(filename);
+  const prevName = index > 0 ? allNames[index - 1] : undefined;
+  const nextName = index >= 0 && index < allNames.length - 1 ? allNames[index + 1] : undefined;
+
   return (
     <main style={{ minHeight: "100vh", padding: 24 }}>
       <Link href="/" style={{ color: "#06c" }}>&larr; Back to gallery</Link>
@@ -147,6 +161,24 @@ export default async function ImageDetail({ params }: { params: { filename: stri
               priority
             />
           </div>
+          {(prevName || nextName) && (
+            <figcaption style={{ marginTop: 12, display: "flex", justifyContent: "space-between", gap: 12 }}>
+              <div>
+                {prevName && (
+                  <Link href={`/image/${encodeURIComponent(prevName)}`} style={{ color: "#06c" }}>
+                    ← Previous
+                  </Link>
+                )}
+              </div>
+              <div>
+                {nextName && (
+                  <Link href={`/image/${encodeURIComponent(nextName)}`} style={{ color: "#06c" }}>
+                    Next →
+                  </Link>
+                )}
+              </div>
+            </figcaption>
+          )}
         </figure>
         <aside style={{ position: "sticky", top: 24, alignSelf: "start" }}>
           <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
