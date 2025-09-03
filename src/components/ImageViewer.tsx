@@ -12,9 +12,10 @@ type Props = {
   nextHref?: string;
   pseudoFullscreen?: boolean;
   exitHref?: string;
+  enterFsHref?: string;
 };
 
-export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false, exitHref }: Props) {
+export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false, exitHref, enterFsHref }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -38,8 +39,20 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
         ? { position: "relative", width: "100%", height: "100dvh", borderRadius: 0, overflow: "hidden" }
         : { position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }
       }
-      onClick={() => {
-        if (pseudoFullscreen && !document.fullscreenElement) {
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+        const target = e.target as HTMLElement | null;
+        if (target && target.closest && target.closest('a')) {
+          return; // Don't hijack clicks on navigation controls
+        }
+        if (!pseudoFullscreen) {
+          if (enterFsHref) {
+            // Try to enter native fullscreen first, then navigate to fs=1
+            if (!document.fullscreenElement) {
+              requestNativeFullscreen();
+            }
+            router.push(enterFsHref);
+          }
+        } else if (pseudoFullscreen && !document.fullscreenElement) {
           requestNativeFullscreen();
         }
       }}

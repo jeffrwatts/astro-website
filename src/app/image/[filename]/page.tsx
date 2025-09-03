@@ -167,6 +167,7 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
             nextHref={nextName ? `/image/${encodeURIComponent(nextName)}${navParams.toString() ? `?${navParams.toString()}` : ""}` : undefined}
             pseudoFullscreen={isFs}
             exitHref={`/image/${encodeURIComponent(filename)}`}
+            enterFsHref={`/image/${encodeURIComponent(filename)}?fs=1`}
           />
         </figure>
         {!isFs && (
@@ -175,9 +176,6 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
                 <div style={{ fontWeight: 700 }}>{title}</div>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <Link href={`/image/${encodeURIComponent(filename)}?fs=1`} aria-label="Enter fullscreen" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
-                    <span style={{ fontSize: 18 }}>⤢</span>
-                  </Link>
                   <Link href="/" aria-label="Close" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
                     <span style={{ fontSize: 18 }}>✕</span>
                   </Link>
