@@ -1,5 +1,6 @@
 // ISR: no noStore here
 import type { Metadata } from "next";
+import sanitizeHtml from "sanitize-html";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ImageViewer from "@/components/ImageViewer";
@@ -54,6 +55,24 @@ async function listFromManifest(): Promise<string[]> {
 		.filter((e) => e && e.imageFilename && /(\.(jpe?g|png|webp|tiff?))$/i.test(e.imageFilename))
 		.map((e) => e.imageFilename)
 		.sort();
+}
+
+async function fetchDescriptionMarkdown(filename: string): Promise<string | undefined> {
+  const base = filename.replace(/\.[^.]+$/, "");
+  const candidates = [
+    `https://storage.googleapis.com/${BUCKET}/descriptions/${encodeURIComponent(filename)}.md`,
+    `https://storage.googleapis.com/${BUCKET}/descriptions/${encodeURIComponent(base)}.md`,
+  ];
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url, { next: { revalidate: 300 } });
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.trim().length > 0) return text;
+      }
+    } catch {}
+  }
+  return undefined;
 }
 
 export async function generateMetadata({ params }: { params: { filename: string } }): Promise<Metadata> {
@@ -156,6 +175,17 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
   const prevName = index > 0 ? allNames[index - 1] : undefined;
   const nextName = index >= 0 && index < allNames.length - 1 ? allNames[index + 1] : undefined;
 
+  // Load optional per-image Markdown description from GCS
+  let descriptionHtml: string | undefined = undefined;
+  try {
+    const md = await fetchDescriptionMarkdown(filename);
+    if (md) {
+      const { marked } = await import("marked");
+      const rawHtml = marked.parse(md);
+      descriptionHtml = sanitizeHtml(typeof rawHtml === "string" ? rawHtml : String(rawHtml));
+    }
+  } catch {}
+
   return (
     <main style={{ minHeight: "100vh", padding: isFs ? 0 : 24 }}>
       {/* When fullscreen (fs=1), hide details sidebar and let image fill viewport height */}
@@ -191,7 +221,14 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
                   Dec: {formatDeclination(meta.dec)}
                 </div>
               )}
-              <div style={{ color: "#666", fontSize: 13 }}>File: {filename}</div>
+              <div style={{ color: "#666", fontSize: 13, marginBottom: 12 }}>File: {filename}</div>
+              {descriptionHtml && (
+                <div>
+                  <div style={{ fontWeight: 600, marginBottom: 6 }}>About this object</div>
+                  <div style={{ color: "#e5e7eb", lineHeight: 1.6, fontSize: 14 }}
+                       dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+                </div>
+              )}
             </div>
           </aside>
         )}
