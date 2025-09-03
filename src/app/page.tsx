@@ -63,7 +63,7 @@ export default async function Home() {
     .sort((a, b) => a.imageFilename.localeCompare(b.imageFilename));
 
 	// Per-request cache-buster to avoid stale browser caches.
-	const bust = Date.now();
+	// Removed cache-buster; rely on proper object caching and Next Image.
 
 	return (
 		<main style={{ minHeight: "100vh", padding: 24 }}>
@@ -71,14 +71,15 @@ export default async function Home() {
 				<p>No images found in bucket {BUCKET}.</p>
 			) : (
 				<ul style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
-					{items.map((meta) => {
+					{items.map((meta, index) => {
+						const isPriority = index < 8;
 						const name = meta.imageFilename;
-						const url = `https://storage.googleapis.com/${BUCKET}/${name}?v=${bust}`;
+						const url = `https://storage.googleapis.com/${BUCKET}/${name}`;
 						const title = meta?.displayName ?? name;
 						return (
 							<li key={name}>
 								<figure>
-									<Link href={`/image/${encodeURIComponent(name)}`}>
+									<Link href={`/image/${encodeURIComponent(name)}`} prefetch={false}>
 										<div style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}>
 											<Image
 												src={url}
@@ -87,13 +88,14 @@ export default async function Home() {
 												style={{ objectFit: "cover" }}
 												sizes="(max-width: 768px) 50vw, 280px"
 												quality={60}
-												priority={false}
+												priority={isPriority}
+												loading={isPriority ? "eager" : "lazy"}
 											/>
 										</div>
 									</Link>
 									<figcaption style={{ marginTop: 8 }}>
 										<div>
-											<Link href={`/image/${encodeURIComponent(name)}`} style={{ color: "#06c", textDecoration: "none" }}>{title}</Link>
+											<Link href={`/image/${encodeURIComponent(name)}`} prefetch={false} style={{ color: "#06c", textDecoration: "none" }}>{title}</Link>
 										</div>
 										{meta && (
 											<div style={{ color: "#666", fontSize: 14, marginTop: 4 }}>
