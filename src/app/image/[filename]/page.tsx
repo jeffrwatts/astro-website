@@ -155,7 +155,7 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
   const nextName = index >= 0 && index < allNames.length - 1 ? allNames[index + 1] : undefined;
 
   return (
-    <main style={{ minHeight: "100vh", padding: 24 }}>
+    <main style={{ minHeight: "100vh", padding: isFs ? 0 : 24 }}>
       {/* When fullscreen (fs=1), hide details sidebar and let image fill viewport height */}
       <div className="detailLayout" style={isFs ? { gridTemplateColumns: "minmax(0, 1fr)" } : undefined}>
         <figure style={{ margin: 0 }}>

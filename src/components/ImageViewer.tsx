@@ -17,15 +17,40 @@ type Props = {
 export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false, exitHref }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  // Pseudo fullscreen keeps within browser chrome; we rely on parent to pass pseudoFullscreen via URL state.
+  const [isNativeFullscreen, setIsNativeFullscreen] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    const handler = () => setIsNativeFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
+
+  const requestNativeFullscreen = React.useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement && el.requestFullscreen) {
+      void el.requestFullscreen().catch(() => {/* ignore */});
+    }
+  }, []);
+
+  const exitNativeFullscreen = React.useCallback(() => {
+    if (document.fullscreenElement && document.exitFullscreen) {
+      void document.exitFullscreen().catch(() => {/* ignore */});
+    }
+  }, []);
 
   return (
     <div
       ref={containerRef}
       style={pseudoFullscreen
-        ? { position: "relative", width: "100%", height: "calc(100vh - 140px)", borderRadius: 8, overflow: "hidden" }
+        ? { position: "relative", width: "100%", height: "100dvh", borderRadius: 0, overflow: "hidden" }
         : { position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }
       }
+      onClick={() => {
+        if (pseudoFullscreen && !document.fullscreenElement) {
+          requestNativeFullscreen();
+        }
+      }}
       onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
         e.currentTarget.dataset.touchX = String(e.touches[0].clientX);
       }}
@@ -71,6 +96,14 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
             alignItems: "center",
             justifyContent: "center",
             border: "1px solid rgba(255,255,255,0.2)",
+          }}
+          onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+            if (document.fullscreenElement) {
+              e.preventDefault();
+              exitNativeFullscreen();
+              // Allow router navigation after exiting native fullscreen
+              router.push(exitHref);
+            }
           }}
         >
           <span style={{ fontSize: 16 }}>⤡</span>
