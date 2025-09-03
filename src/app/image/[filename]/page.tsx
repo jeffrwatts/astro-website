@@ -169,6 +169,7 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
             pseudoFullscreen={isFs}
             exitHref={`/image/${encodeURIComponent(filename)}`}
             enterFsHref={`/image/${encodeURIComponent(filename)}?fs=1`}
+            blurDataURL={meta?.blurDataURL}
           />
         </figure>
         {!isFs && (

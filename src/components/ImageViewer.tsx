@@ -13,9 +13,10 @@ type Props = {
   pseudoFullscreen?: boolean;
   exitHref?: string;
   enterFsHref?: string;
+  blurDataURL?: string;
 };
 
-export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false, exitHref, enterFsHref }: Props) {
+export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false, exitHref, enterFsHref, blurDataURL }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -94,6 +95,8 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
         sizes="(max-width: 1024px) 100vw, 900px"
         quality={70}
         priority
+        placeholder={blurDataURL ? "blur" : undefined}
+        blurDataURL={blurDataURL}
       />
 
       {pseudoFullscreen && exitHref && (
