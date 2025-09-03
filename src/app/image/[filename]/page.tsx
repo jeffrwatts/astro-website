@@ -156,8 +156,8 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
 
   return (
     <main style={{ minHeight: "100vh", padding: 24 }}>
-      {/* Header is handled inside ImageViewer overlay */}
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 340px", gap: 24, alignItems: "start" }}>
+      {/* When fullscreen (fs=1), hide details sidebar and let image fill viewport height */}
+      <div style={{ display: "grid", gridTemplateColumns: isFs ? "minmax(0, 1fr)" : "minmax(0, 1fr) 340px", gap: 24, alignItems: "start" }}>
         <figure style={{ margin: 0 }}>
           <ImageViewer
             url={url}
@@ -167,30 +167,32 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
             pseudoFullscreen={isFs}
           />
         </figure>
-        <aside style={{ position: "sticky", top: 24, alignSelf: "start" }}>
-          <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
-              <div style={{ fontWeight: 700 }}>{title}</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <Link href={isFs ? `/image/${encodeURIComponent(filename)}` : `/image/${encodeURIComponent(filename)}?fs=1`} aria-label="Toggle fullscreen" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
-                  <span style={{ fontSize: 18 }}>{isFs ? "⤡" : "⤢"}</span>
-                </Link>
-                <Link href="/" aria-label="Close" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
-                  <span style={{ fontSize: 18 }}>✕</span>
-                </Link>
+        {!isFs && (
+          <aside style={{ position: "sticky", top: 24, alignSelf: "start" }}>
+            <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+                <div style={{ fontWeight: 700 }}>{title}</div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <Link href={`/image/${encodeURIComponent(filename)}?fs=1`} aria-label="Enter fullscreen" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
+                    <span style={{ fontSize: 18 }}>⤢</span>
+                  </Link>
+                  <Link href="/" aria-label="Close" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
+                    <span style={{ fontSize: 18 }}>✕</span>
+                  </Link>
+                </div>
               </div>
+              <div style={{ fontWeight: 600, marginBottom: 8 }}>Details</div>
+              {meta?.constellation && <div style={{ marginBottom: 6 }}>Constellation: {meta.constellation}</div>}
+              {typeof meta?.ra === "number" && typeof meta?.dec === "number" && (
+                <div style={{ marginBottom: 6 }}>
+                  RA: {formatRightAscension(meta.ra)}<br />
+                  Dec: {formatDeclination(meta.dec)}
+                </div>
+              )}
+              <div style={{ color: "#666", fontSize: 13 }}>File: {filename}</div>
             </div>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>Details</div>
-            {meta?.constellation && <div style={{ marginBottom: 6 }}>Constellation: {meta.constellation}</div>}
-            {typeof meta?.ra === "number" && typeof meta?.dec === "number" && (
-              <div style={{ marginBottom: 6 }}>
-                RA: {formatRightAscension(meta.ra)}<br />
-                Dec: {formatDeclination(meta.dec)}
-              </div>
-            )}
-            <div style={{ color: "#666", fontSize: 13 }}>File: {filename}</div>
-          </div>
-        </aside>
+          </aside>
+        )}
       </div>
     </main>
   );
