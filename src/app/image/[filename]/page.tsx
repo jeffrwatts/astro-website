@@ -1,4 +1,3 @@
-import { Storage } from "@google-cloud/storage";
 import { unstable_noStore as noStore } from "next/cache";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -8,6 +7,7 @@ import ImageViewer from "@/components/ImageViewer";
 const BUCKET = "astro-website-images-astrowebsite-470903";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+export const runtime = "edge";
 
 interface ManifestEntry {
 	objectId: string;
@@ -18,54 +18,55 @@ interface ManifestEntry {
 	imageFilename: string;
 }
 
-async function fetchManifest(): Promise<Record<string, ManifestEntry>> {
-	const storage = new Storage();
-	const file = storage.bucket(BUCKET).file("web_images.json");
+async function fetchManifestArray(): Promise<ManifestEntry[]> {
 	try {
-		const [exists] = await file.exists();
-		if (!exists) return {};
-		const [buf] = await file.download();
-		const arr = JSON.parse(buf.toString()) as ManifestEntry[];
-		const map: Record<string, ManifestEntry> = {};
-		for (const entry of arr) {
-			if (entry && entry.imageFilename) {
-				map[entry.imageFilename] = entry;
-			}
-		}
-		return map;
+		const res = await fetch(`https://storage.googleapis.com/${BUCKET}/web_images.json`, { cache: "no-store" });
+		if (!res.ok) return [];
+		const arr = (await res.json()) as ManifestEntry[];
+		return Array.isArray(arr) ? arr : [];
 	} catch {
-		return {};
+		return [];
 	}
 }
 
-async function ensureFileExists(filename: string): Promise<boolean> {
-	const storage = new Storage();
-	const file = storage.bucket(BUCKET).file(filename);
-	const [exists] = await file.exists();
-	return exists;
+function indexByFilename(arr: ManifestEntry[]): Record<string, ManifestEntry> {
+	const map: Record<string, ManifestEntry> = {};
+	for (const e of arr) {
+		if (e && e.imageFilename) map[e.imageFilename] = e;
+	}
+	return map;
 }
 
-async function listBucketImages(): Promise<string[]> {
-	const storage = new Storage();
-	const [files] = await storage.bucket(BUCKET).getFiles({ autoPaginate: true });
-	return files
-		.map((f) => f.name)
-		.filter((name) => /(\.(jpe?g|png|webp|tiff?))$/i.test(name))
+async function ensureFileExists(filename: string): Promise<boolean> {
+	try {
+		const res = await fetch(`https://storage.googleapis.com/${BUCKET}/${encodeURIComponent(filename)}`, { method: "HEAD", cache: "no-store" });
+		return res.ok;
+	} catch {
+		return false;
+	}
+}
+
+async function listFromManifest(): Promise<string[]> {
+	const arr = await fetchManifestArray();
+	return arr
+		.filter((e) => e && e.imageFilename && /(\.(jpe?g|png|webp|tiff?))$/i.test(e.imageFilename))
+		.map((e) => e.imageFilename)
 		.sort();
 }
 
 export async function generateMetadata({ params }: { params: { filename: string } }): Promise<Metadata> {
   const raw = params.filename;
   const filename = decodeURIComponent(raw);
-  const [exists, manifestByFilename] = await Promise.all([
+  const [exists, manifestArr] = await Promise.all([
     ensureFileExists(filename),
-    fetchManifest(),
+    fetchManifestArray(),
   ]);
 
   if (!exists) {
     return { title: "Not found" };
   }
 
+  const manifestByFilename = indexByFilename(manifestArr);
   const meta = manifestByFilename[filename];
   const display = meta?.displayName ?? filename;
   const descParts: string[] = [];
@@ -127,17 +128,17 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
   const raw = params.filename;
   const filename = decodeURIComponent(raw);
 
-  const [exists, manifestByFilename] = await Promise.all([
+  const [exists, manifestArr] = await Promise.all([
     ensureFileExists(filename),
-    fetchManifest(),
+    fetchManifestArray(),
   ]);
 
   if (!exists) return notFound();
 
+  const manifestByFilename = indexByFilename(manifestArr);
   const meta = manifestByFilename[filename];
   const title = meta?.displayName ?? filename;
-  const bust = Date.now();
-  const url = `https://storage.googleapis.com/${BUCKET}/${filename}?v=${bust}`;
+  const url = `https://storage.googleapis.com/${BUCKET}/${filename}`;
   const fsValue = ((): string | undefined => {
     if (!searchParams) return undefined;
     const raw = searchParams["fs"];
@@ -149,7 +150,7 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
   const navParams = new URLSearchParams();
   if (isFs) navParams.set("fs", "1");
 
-  const allNames = await listBucketImages();
+  const allNames = await listFromManifest();
   const index = allNames.indexOf(filename);
   const prevName = index > 0 ? allNames[index - 1] : undefined;
   const nextName = index >= 0 && index < allNames.length - 1 ? allNames[index + 1] : undefined;
