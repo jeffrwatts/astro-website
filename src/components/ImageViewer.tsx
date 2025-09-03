@@ -20,8 +20,8 @@ export default function ImageViewer({ url, title, prevHref, nextHref, closeHref 
 
   React.useEffect(() => {
     function onChange() {
-      const fsEl = (document as any).fullscreenElement as Element | null;
-      setIsFullscreen(!!fsEl);
+      const fsEl = document.fullscreenElement;
+      setIsFullscreen(Boolean(fsEl));
     }
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);

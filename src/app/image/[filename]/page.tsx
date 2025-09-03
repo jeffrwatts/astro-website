@@ -2,7 +2,6 @@ import { Storage } from "@google-cloud/storage";
 import { unstable_noStore as noStore } from "next/cache";
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import ImageViewer from "@/components/ImageViewer";
 
