@@ -50,6 +50,18 @@ body {
   }
 }
 
+/* On small screens in landscape, return to two-column layout */
+@media (max-width: 900px) and (orientation: landscape) {
+  .detailLayout {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+  .detailAside {
+    position: sticky;
+    top: 12px;
+    align-self: start;
+  }
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
