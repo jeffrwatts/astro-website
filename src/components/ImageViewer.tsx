@@ -48,7 +48,7 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
         src={url}
         alt={title}
         fill
-        style={{ objectFit: "contain", background: "#000" }}
+        style={{ objectFit: pseudoFullscreen ? "contain" : "cover", background: "#000" }}
         sizes="(max-width: 1024px) 100vw, 900px"
         quality={70}
         priority

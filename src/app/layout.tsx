@@ -25,10 +25,24 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <header style={{ padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 12 }}>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>Pacific Deep Sky</div>
-          <div style={{ color: "var(--muted)", fontSize: 14 }}>Astrophotography by Jeff Ray Watts</div>
-        </header>
+        {/* Hide site header when detail page opts into fullscreen (fs=1) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                try {
+                  var params = new URLSearchParams(location.search);
+                  var hide = params.get('fs') === '1';
+                  if (!hide) {
+                    var header = document.createElement('div');
+                    header.innerHTML = '<div style="padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:12px"><div style="font-size:22px;font-weight:700">Pacific Deep Sky</div><div style="color:var(--muted);font-size:14px">Astrophotography by Jeff Ray Watts</div></div>';
+                    document.currentScript.parentNode.insertBefore(header.firstChild, document.currentScript);
+                  }
+                } catch (_) {}
+              })();
+            `,
+          }}
+        />
         {children}
       </body>
     </html>
