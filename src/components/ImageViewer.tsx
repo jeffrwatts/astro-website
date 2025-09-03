@@ -17,25 +17,17 @@ type Props = {
 export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false, exitHref }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const [isNativeFullscreen, setIsNativeFullscreen] = React.useState<boolean>(false);
-
-  React.useEffect(() => {
-    const handler = () => setIsNativeFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener("fullscreenchange", handler);
-    return () => document.removeEventListener("fullscreenchange", handler);
-  }, []);
 
   const requestNativeFullscreen = React.useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    const el = document.documentElement as HTMLElement;
     if (!document.fullscreenElement && el.requestFullscreen) {
-      void el.requestFullscreen().catch(() => {/* ignore */});
+      void el.requestFullscreen().catch(() => { /* ignore */ });
     }
   }, []);
 
   const exitNativeFullscreen = React.useCallback(() => {
     if (document.fullscreenElement && document.exitFullscreen) {
-      void document.exitFullscreen().catch(() => {/* ignore */});
+      void document.exitFullscreen().catch(() => { /* ignore */ });
     }
   }, []);
 
@@ -47,6 +39,12 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
         : { position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }
       }
       onClick={() => {
+        if (pseudoFullscreen && !document.fullscreenElement) {
+          requestNativeFullscreen();
+        }
+      }}
+      onLoadCapture={() => {
+        // When navigating next/prev, attempt to re-enter native fullscreen automatically.
         if (pseudoFullscreen && !document.fullscreenElement) {
           requestNativeFullscreen();
         }
