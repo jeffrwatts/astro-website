@@ -11,36 +11,21 @@ type Props = {
   prevHref?: string;
   nextHref?: string;
   closeHref?: string;
+  pseudoFullscreen?: boolean;
 };
 
-export default function ImageViewer({ url, title, prevHref, nextHref, closeHref = "/" }: Props) {
+export default function ImageViewer({ url, title, prevHref, nextHref, closeHref = "/", pseudoFullscreen = false }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const [isFullscreen, setIsFullscreen] = React.useState(false);
-
-  React.useEffect(() => {
-    function onChange() {
-      const fsEl = document.fullscreenElement;
-      setIsFullscreen(Boolean(fsEl));
-    }
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
-
-  const toggleFullscreen = React.useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    if (!document.fullscreenElement) {
-      el.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
-  }, []);
+  // Pseudo fullscreen keeps within browser chrome; we rely on parent to pass pseudoFullscreen via URL state.
 
   return (
     <div
       ref={containerRef}
-      style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}
+      style={pseudoFullscreen
+        ? { position: "relative", width: "100%", height: "calc(100vh - 140px)", borderRadius: 8, overflow: "hidden" }
+        : { position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }
+      }
       onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
         e.currentTarget.dataset.touchX = String(e.touches[0].clientX);
       }}
@@ -68,91 +53,6 @@ export default function ImageViewer({ url, title, prevHref, nextHref, closeHref 
         quality={70}
         priority
       />
-
-      {/* Top overlay: title + actions */}
-      <div
-        style={{
-          position: "absolute",
-          top: 8,
-          left: 8,
-          right: 8,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
-          pointerEvents: "none",
-        }}
-      >
-        {/* Exit fullscreen icon (persistent top-left when in fullscreen) */}
-        {isFullscreen && (
-          <button
-            onClick={toggleFullscreen}
-            aria-label="Exit fullscreen"
-            style={{
-              pointerEvents: "auto",
-              background: "rgba(0,0,0,0.6)",
-              color: "#fff",
-              width: 36,
-              height: 36,
-              borderRadius: 999,
-              border: "1px solid rgba(255,255,255,0.2)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span style={{ fontSize: 16 }}>⤡</span>
-          </button>
-        )}
-
-        <div style={{
-          pointerEvents: "auto",
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
-          paddingLeft: isFullscreen ? 8 : 0,
-        }}>
-          <div style={{ color: "#f3f4f6", fontWeight: 600, textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>{title}</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button
-              onClick={toggleFullscreen}
-              aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-              style={{
-                background: "rgba(75,85,99,0.65)",
-                color: "#f3f4f6",
-                width: 36,
-                height: 36,
-                borderRadius: 999,
-                border: "1px solid rgba(255,255,255,0.15)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <span style={{ fontSize: 18 }}>{isFullscreen ? "⤡" : "⤢"}</span>
-            </button>
-            <Link
-              href={closeHref}
-              aria-label="Close"
-              style={{
-                background: "rgba(75,85,99,0.65)",
-                color: "#f3f4f6",
-                width: 36,
-                height: 36,
-                borderRadius: 999,
-                border: "1px solid rgba(255,255,255,0.15)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <span style={{ fontSize: 18 }}>✕</span>
-            </Link>
-          </div>
-        </div>
-      </div>
 
       {prevHref && (
         <Link

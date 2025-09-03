@@ -122,7 +122,7 @@ function formatDeclination(degrees: number): string {
 	return `${ddStr}° ${mmStr}' ${ssStr}" ${suffix}`;
 }
 
-export default async function ImageDetail({ params }: { params: { filename: string } }) {
+export default async function ImageDetail({ params, searchParams }: { params: { filename: string }, searchParams?: { [key: string]: string | string[] | undefined } }) {
   noStore();
   const raw = params.filename;
   const filename = decodeURIComponent(raw);
@@ -138,6 +138,16 @@ export default async function ImageDetail({ params }: { params: { filename: stri
   const title = meta?.displayName ?? filename;
   const bust = Date.now();
   const url = `https://storage.googleapis.com/${BUCKET}/${filename}?v=${bust}`;
+  const fsValue = ((): string | undefined => {
+    if (!searchParams) return undefined;
+    const raw = (searchParams as any).fs as unknown;
+    if (typeof raw === "string") return raw;
+    if (Array.isArray(raw)) return raw[0];
+    return undefined;
+  })();
+  const isFs = fsValue === "1";
+  const navParams = new URLSearchParams();
+  if (isFs) navParams.set("fs", "1");
 
   const allNames = await listBucketImages();
   const index = allNames.indexOf(filename);
@@ -152,13 +162,25 @@ export default async function ImageDetail({ params }: { params: { filename: stri
           <ImageViewer
             url={url}
             title={title}
-            prevHref={prevName ? `/image/${encodeURIComponent(prevName)}` : undefined}
-            nextHref={nextName ? `/image/${encodeURIComponent(nextName)}` : undefined}
+            prevHref={prevName ? `/image/${encodeURIComponent(prevName)}${navParams.toString() ? `?${navParams.toString()}` : ""}` : undefined}
+            nextHref={nextName ? `/image/${encodeURIComponent(nextName)}${navParams.toString() ? `?${navParams.toString()}` : ""}` : undefined}
             closeHref="/"
+            pseudoFullscreen={isFs}
           />
         </figure>
         <aside style={{ position: "sticky", top: 24, alignSelf: "start" }}>
           <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+              <div style={{ fontWeight: 700 }}>{title}</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <Link href={isFs ? `/image/${encodeURIComponent(filename)}` : `/image/${encodeURIComponent(filename)}?fs=1`} aria-label="Toggle fullscreen" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
+                  <span style={{ fontSize: 18 }}>{isFs ? "⤡" : "⤢"}</span>
+                </Link>
+                <Link href="/" aria-label="Close" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
+                  <span style={{ fontSize: 18 }}>✕</span>
+                </Link>
+              </div>
+            </div>
             <div style={{ fontWeight: 600, marginBottom: 8 }}>Details</div>
             {meta?.constellation && <div style={{ marginBottom: 6 }}>Constellation: {meta.constellation}</div>}
             {typeof meta?.ra === "number" && typeof meta?.dec === "number" && (

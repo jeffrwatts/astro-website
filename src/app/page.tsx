@@ -86,6 +86,10 @@ export default async function Home() {
 
 	return (
 		<main style={{ minHeight: "100vh", padding: 24 }}>
+			<header style={{ padding: "0 0 12px 0", marginBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+				<div style={{ fontSize: 22, fontWeight: 700 }}>Pacific Deep Sky</div>
+				<div style={{ color: "var(--muted)", fontSize: 14 }}>Astrophotography by Jeff Ray Watts</div>
+			</header>
 			<h1 style={{ marginBottom: 16 }}>Gallery</h1>
 			{items.length === 0 ? (
 				<p>No images found in bucket {BUCKET}.</p>
