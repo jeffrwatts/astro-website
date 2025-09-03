@@ -100,7 +100,7 @@ export default async function Home() {
 							<li key={name}>
 								<figure>
 									<Link href={`/image/${encodeURIComponent(name)}`}>
-										<div style={{ position: "relative", width: "100%", height: 200, borderRadius: 8, overflow: "hidden" }}>
+										<div style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}>
 											<Image
 												src={url}
 												alt={title}
