@@ -147,8 +147,7 @@ export default async function ImageDetail({ params }: { params: { filename: stri
 
   return (
     <main style={{ minHeight: "100vh", padding: 24 }}>
-      <Link href="/" style={{ color: "#06c" }}>&larr; Back to gallery</Link>
-      <h1 style={{ margin: "16px 0" }}>{title}</h1>
+      {/* Header is handled inside ImageViewer overlay */}
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 340px", gap: 24, alignItems: "start" }}>
         <figure style={{ margin: 0 }}>
           <ImageViewer
