@@ -26,6 +26,30 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Detail layout responsive: side-by-side on wide screens, stacked on narrow */
+.detailLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+.detailAside {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+}
+
+@media (max-width: 900px) {
+  .detailLayout {
+    grid-template-columns: 1fr;
+  }
+  .detailAside {
+    position: static;
+    top: auto;
+  }
+}
+
 * {
   box-sizing: border-box;
   padding: 0;

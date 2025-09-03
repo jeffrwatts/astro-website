@@ -157,7 +157,7 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
   return (
     <main style={{ minHeight: "100vh", padding: 24 }}>
       {/* When fullscreen (fs=1), hide details sidebar and let image fill viewport height */}
-      <div style={{ display: "grid", gridTemplateColumns: isFs ? "minmax(0, 1fr)" : "minmax(0, 1fr) 340px", gap: 24, alignItems: "start" }}>
+      <div className="detailLayout" style={isFs ? { gridTemplateColumns: "minmax(0, 1fr)" } : undefined}>
         <figure style={{ margin: 0 }}>
           <ImageViewer
             url={url}
@@ -169,7 +169,7 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
           />
         </figure>
         {!isFs && (
-          <aside style={{ position: "sticky", top: 24, alignSelf: "start" }}>
+          <aside className="detailAside">
             <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
                 <div style={{ fontWeight: 700 }}>{title}</div>
