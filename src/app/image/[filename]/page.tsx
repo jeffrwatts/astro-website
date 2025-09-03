@@ -15,6 +15,9 @@ interface ManifestEntry {
 	dec?: number;
 	constellation?: string;
 	imageFilename: string;
+	width?: number;
+	height?: number;
+	blurDataURL?: string;
 }
 
 async function fetchManifestArray(): Promise<ManifestEntry[]> {

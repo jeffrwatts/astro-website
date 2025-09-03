@@ -11,6 +11,9 @@ interface ManifestEntry {
 	dec?: number;
 	constellation?: string;
 	imageFilename: string;
+	width?: number;
+	height?: number;
+	blurDataURL?: string;
 }
 
 async function fetchManifestArray(): Promise<ManifestEntry[]> {
@@ -87,6 +90,8 @@ export default async function Home() {
 												priority={isPriority}
 												loading={isPriority ? "eager" : "lazy"}
 												unoptimized
+												placeholder={meta?.blurDataURL ? "blur" : undefined}
+												blurDataURL={meta?.blurDataURL}
 											/>
 										</div>
 									</Link>
