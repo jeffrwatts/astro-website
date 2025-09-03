@@ -11,9 +11,10 @@ type Props = {
   prevHref?: string;
   nextHref?: string;
   pseudoFullscreen?: boolean;
+  exitHref?: string;
 };
 
-export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false }: Props) {
+export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false, exitHref }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   // Pseudo fullscreen keeps within browser chrome; we rely on parent to pass pseudoFullscreen via URL state.
@@ -52,6 +53,29 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
         quality={70}
         priority
       />
+
+      {pseudoFullscreen && exitHref && (
+        <Link
+          href={exitHref}
+          aria-label="Exit fullscreen"
+          style={{
+            position: "absolute",
+            top: 12,
+            left: 12,
+            background: "rgba(0,0,0,0.6)",
+            color: "#fff",
+            width: 36,
+            height: 36,
+            borderRadius: 999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1px solid rgba(255,255,255,0.2)",
+          }}
+        >
+          <span style={{ fontSize: 16 }}>⤡</span>
+        </Link>
+      )}
 
       {prevHref && (
         <Link

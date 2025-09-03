@@ -165,6 +165,7 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
             prevHref={prevName ? `/image/${encodeURIComponent(prevName)}${navParams.toString() ? `?${navParams.toString()}` : ""}` : undefined}
             nextHref={nextName ? `/image/${encodeURIComponent(nextName)}${navParams.toString() ? `?${navParams.toString()}` : ""}` : undefined}
             pseudoFullscreen={isFs}
+            exitHref={`/image/${encodeURIComponent(filename)}`}
           />
         </figure>
         {!isFs && (
