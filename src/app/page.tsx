@@ -79,21 +79,40 @@ export default async function Home() {
 							<li key={name}>
 								<figure>
 									<Link href={`/image/${encodeURIComponent(name)}`} prefetch={false}>
-										<div style={{ position: "relative", width: "100%", height: 0, paddingBottom: meta?.width && meta?.height ? `${(meta.height / meta.width) * 100}%` : "66%", borderRadius: 8, overflow: "hidden" }}>
-											<Image
-												src={url}
-												alt={title}
-												fill
-												style={{ objectFit: "cover" }}
-												sizes="(max-width: 768px) 50vw, 280px"
-												quality={60}
-												priority={isPriority}
-												loading={isPriority ? "eager" : "lazy"}
-												unoptimized
-												placeholder={meta?.blurDataURL ? "blur" : undefined}
-												blurDataURL={meta?.blurDataURL}
-											/>
-										</div>
+										{meta?.width && meta?.height ? (
+											<div style={{ borderRadius: 8, overflow: "hidden" }}>
+												<Image
+													src={url}
+													alt={title}
+													width={meta.width}
+													height={meta.height}
+													style={{ width: "100%", height: "auto", display: "block", objectFit: "cover" }}
+													sizes="(max-width: 768px) 50vw, 280px"
+													quality={60}
+													priority={isPriority}
+													loading={isPriority ? "eager" : "lazy"}
+													unoptimized
+													placeholder={meta?.blurDataURL ? "blur" : undefined}
+													blurDataURL={meta?.blurDataURL}
+												/>
+											</div>
+										) : (
+											<div style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}>
+												<Image
+													src={url}
+													alt={title}
+													fill
+													style={{ objectFit: "cover" }}
+													sizes="(max-width: 768px) 50vw, 280px"
+													quality={60}
+													priority={isPriority}
+													loading={isPriority ? "eager" : "lazy"}
+													unoptimized
+													placeholder={meta?.blurDataURL ? "blur" : undefined}
+													blurDataURL={meta?.blurDataURL}
+												/>
+											</div>
+										)}
 									</Link>
 									<figcaption style={{ marginTop: 8 }}>
 										<div>
