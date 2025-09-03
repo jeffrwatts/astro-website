@@ -27,34 +27,6 @@ async function fetchManifestArray(): Promise<ManifestEntry[]> {
 	}
 }
 
-function formatRightAscension(hours: number): string {
-	// Convert decimal hours to HH h MM m SS.s s
-	const normalized = ((hours % 24) + 24) % 24;
-	const totalSeconds = normalized * 3600;
-	const hh = Math.floor(totalSeconds / 3600);
-	const mm = Math.floor((totalSeconds % 3600) / 60);
-	const ss = totalSeconds - hh * 3600 - mm * 60;
-	const hhStr = String(hh).padStart(2, "0");
-	const mmStr = String(mm).padStart(2, "0");
-	const ssStr = ss.toFixed(1).padStart(4, "0");
-	return `${hhStr}h ${mmStr}m ${ssStr}s`;
-}
-
-function formatDeclination(degrees: number): string {
-	// Convert decimal degrees to DD° MM' SS.s" with N/S suffix
-	const isNegative = degrees < 0;
-	const suffix = isNegative ? "S" : "N";
-	const abs = Math.abs(degrees);
-	const totalSeconds = abs * 3600;
-	const dd = Math.floor(totalSeconds / 3600);
-	const mm = Math.floor((totalSeconds % 3600) / 60);
-	const ss = totalSeconds - dd * 3600 - mm * 60;
-	const ddStr = String(dd).padStart(2, "0");
-	const mmStr = String(mm).padStart(2, "0");
-	const ssStr = ss.toFixed(1).padStart(4, "0");
-	return `${ddStr}° ${mmStr}' ${ssStr}" ${suffix}`;
-}
-
 export default async function Home() {
   const manifest = await fetchManifestArray();
   const items = manifest
@@ -69,7 +41,7 @@ export default async function Home() {
 			{items.length === 0 ? (
 				<p>No images found in bucket {BUCKET}.</p>
 			) : (
-				<ul style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+				<ul style={{ display: "grid", gap: 24, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
 					{items.map((meta, index) => {
 						const isPriority = index < 8;
 						const name = meta.imageFilename;
@@ -114,21 +86,7 @@ export default async function Home() {
 											</div>
 										)}
 									</Link>
-									<figcaption style={{ marginTop: 8 }}>
-										<div>
-											<Link href={`/image/${encodeURIComponent(name)}`} prefetch={false} style={{ color: "#06c", textDecoration: "none" }}>{title}</Link>
-										</div>
-										{meta && (
-											<div style={{ color: "#666", fontSize: 14, marginTop: 4 }}>
-												{meta.constellation && <div>Constellation: {meta.constellation}</div>}
-												{typeof meta.ra === "number" && typeof meta.dec === "number" && (
-													<div>
-														RA: {formatRightAscension(meta.ra)} · Dec: {formatDeclination(meta.dec)}
-													</div>
-												)}
-											</div>
-										)}
-									</figcaption>
+									
 								</figure>
 							</li>
 						);
