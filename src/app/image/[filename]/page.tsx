@@ -1,4 +1,4 @@
-import { unstable_noStore as noStore } from "next/cache";
+// ISR: no noStore here
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -6,8 +6,7 @@ import ImageViewer from "@/components/ImageViewer";
 
 const BUCKET = "astro-website-images-astrowebsite-470903";
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const runtime = "edge";
+export const revalidate = 600;
 
 interface ManifestEntry {
 	objectId: string;
@@ -20,7 +19,7 @@ interface ManifestEntry {
 
 async function fetchManifestArray(): Promise<ManifestEntry[]> {
 	try {
-		const res = await fetch(`https://storage.googleapis.com/${BUCKET}/web_images.json`, { cache: "no-store" });
+		const res = await fetch(`https://storage.googleapis.com/${BUCKET}/web_images.json`, { next: { revalidate: 600 } });
 		if (!res.ok) return [];
 		const arr = (await res.json()) as ManifestEntry[];
 		return Array.isArray(arr) ? arr : [];
@@ -124,7 +123,6 @@ function formatDeclination(degrees: number): string {
 }
 
 export default async function ImageDetail({ params, searchParams }: { params: { filename: string }, searchParams?: { [key: string]: string | string[] | undefined } }) {
-  noStore();
   const raw = params.filename;
   const filename = decodeURIComponent(raw);
 

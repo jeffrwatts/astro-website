@@ -1,11 +1,8 @@
-import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import Image from "next/image";
 
 const BUCKET = "astro-website-images-astrowebsite-470903";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const runtime = "edge";
+export const revalidate = 600;
 
 interface ManifestEntry {
 	objectId: string;
@@ -18,7 +15,7 @@ interface ManifestEntry {
 
 async function fetchManifestArray(): Promise<ManifestEntry[]> {
 	try {
-		const res = await fetch(`https://storage.googleapis.com/${BUCKET}/web_images.json`, { cache: "no-store" });
+		const res = await fetch(`https://storage.googleapis.com/${BUCKET}/web_images.json`, { next: { revalidate: 600 } });
 		if (!res.ok) return [];
 		const arr = (await res.json()) as ManifestEntry[];
 		return Array.isArray(arr) ? arr : [];
@@ -56,7 +53,6 @@ function formatDeclination(degrees: number): string {
 }
 
 export default async function Home() {
-  noStore();
   const manifest = await fetchManifestArray();
   const items = manifest
     .filter((e) => e && typeof e.imageFilename === "string" && /\.(jpe?g|png|webp|tiff?)$/i.test(e.imageFilename))
