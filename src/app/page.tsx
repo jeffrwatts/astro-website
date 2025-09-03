@@ -1,4 +1,3 @@
-import { Storage } from "@google-cloud/storage";
 import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import Image from "next/image";
@@ -6,15 +5,7 @@ import Image from "next/image";
 const BUCKET = "astro-website-images-astrowebsite-470903";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-async function listBucketImages(): Promise<string[]> {
-	const storage = new Storage();
-	const [files] = await storage.bucket(BUCKET).getFiles({ autoPaginate: true });
-	return files
-		.map((f) => f.name)
-		.filter((name) => /\.(jpe?g|png|webp|tiff?)$/i.test(name))
-		.sort();
-}
+export const runtime = "edge";
 
 interface ManifestEntry {
 	objectId: string;
@@ -25,23 +16,14 @@ interface ManifestEntry {
 	imageFilename: string;
 }
 
-async function fetchManifest(): Promise<Record<string, ManifestEntry>> {
-	const storage = new Storage();
-	const file = storage.bucket(BUCKET).file("web_images.json");
+async function fetchManifestArray(): Promise<ManifestEntry[]> {
 	try {
-		const [exists] = await file.exists();
-		if (!exists) return {};
-		const [buf] = await file.download();
-		const arr = JSON.parse(buf.toString()) as ManifestEntry[];
-		const map: Record<string, ManifestEntry> = {};
-		for (const entry of arr) {
-			if (entry && entry.imageFilename) {
-				map[entry.imageFilename] = entry;
-			}
-		}
-		return map;
+		const res = await fetch(`https://storage.googleapis.com/${BUCKET}/web_images.json`, { cache: "no-store" });
+		if (!res.ok) return [];
+		const arr = (await res.json()) as ManifestEntry[];
+		return Array.isArray(arr) ? arr : [];
 	} catch {
-		return {};
+		return [];
 	}
 }
 
@@ -75,25 +57,22 @@ function formatDeclination(degrees: number): string {
 
 export default async function Home() {
   noStore();
-  const [names, manifestByFilename] = await Promise.all([
-    listBucketImages(),
-    fetchManifest(),
-  ]);
-  const items = names.map((file) => ({ file, meta: manifestByFilename[file] }));
+  const manifest = await fetchManifestArray();
+  const items = manifest
+    .filter((e) => e && typeof e.imageFilename === "string" && /\.(jpe?g|png|webp|tiff?)$/i.test(e.imageFilename))
+    .sort((a, b) => a.imageFilename.localeCompare(b.imageFilename));
 
 	// Per-request cache-buster to avoid stale browser caches.
 	const bust = Date.now();
 
 	return (
 		<main style={{ minHeight: "100vh", padding: 24 }}>
-			<h1 style={{ marginBottom: 16 }}>Gallery</h1>
 			{items.length === 0 ? (
 				<p>No images found in bucket {BUCKET}.</p>
 			) : (
 				<ul style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
-					{items.map((item) => {
-						const name = item.file;
-						const meta = (item as { meta?: ManifestEntry }).meta;
+					{items.map((meta) => {
+						const name = meta.imageFilename;
 						const url = `https://storage.googleapis.com/${BUCKET}/${name}?v=${bust}`;
 						const title = meta?.displayName ?? name;
 						return (
