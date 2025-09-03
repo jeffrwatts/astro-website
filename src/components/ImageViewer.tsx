@@ -10,11 +10,10 @@ type Props = {
   title: string;
   prevHref?: string;
   nextHref?: string;
-  closeHref?: string;
   pseudoFullscreen?: boolean;
 };
 
-export default function ImageViewer({ url, title, prevHref, nextHref, closeHref = "/", pseudoFullscreen = false }: Props) {
+export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   // Pseudo fullscreen keeps within browser chrome; we rely on parent to pass pseudoFullscreen via URL state.

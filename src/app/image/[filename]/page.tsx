@@ -140,7 +140,7 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
   const url = `https://storage.googleapis.com/${BUCKET}/${filename}?v=${bust}`;
   const fsValue = ((): string | undefined => {
     if (!searchParams) return undefined;
-    const raw = (searchParams as any).fs as unknown;
+    const raw = searchParams["fs"];
     if (typeof raw === "string") return raw;
     if (Array.isArray(raw)) return raw[0];
     return undefined;
@@ -164,7 +164,6 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
             title={title}
             prevHref={prevName ? `/image/${encodeURIComponent(prevName)}${navParams.toString() ? `?${navParams.toString()}` : ""}` : undefined}
             nextHref={nextName ? `/image/${encodeURIComponent(nextName)}${navParams.toString() ? `?${navParams.toString()}` : ""}` : undefined}
-            closeHref="/"
             pseudoFullscreen={isFs}
           />
         </figure>
