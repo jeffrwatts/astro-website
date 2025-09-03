@@ -90,6 +90,7 @@ export default async function Home() {
 												quality={60}
 												priority={isPriority}
 												loading={isPriority ? "eager" : "lazy"}
+												unoptimized
 											/>
 										</div>
 									</Link>
