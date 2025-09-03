@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 
-export default function SiteHeader(): JSX.Element | null {
+export default function SiteHeader() {
   const params = useSearchParams();
   const hide = params.get("fs") === "1";
   if (hide) return null;
