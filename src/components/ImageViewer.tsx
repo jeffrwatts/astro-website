@@ -60,8 +60,14 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
         const dx = endX - startX;
         if (Math.abs(dx) > 40) {
           if (dx < 0 && nextHref) {
+            if (pseudoFullscreen && !document.fullscreenElement) {
+              requestNativeFullscreen();
+            }
             router.push(nextHref);
           } else if (dx > 0 && prevHref) {
+            if (pseudoFullscreen && !document.fullscreenElement) {
+              requestNativeFullscreen();
+            }
             router.push(prevHref);
           }
         }
@@ -129,6 +135,11 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
           }}
           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
           onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0.35"; }}
+          onClick={() => {
+            if (pseudoFullscreen && !document.fullscreenElement) {
+              requestNativeFullscreen();
+            }
+          }}
           aria-label="Previous image"
         >
           <span style={{ fontSize: 32 }}>❮</span>
@@ -155,6 +166,11 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
           }}
           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
           onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0.35"; }}
+          onClick={() => {
+            if (pseudoFullscreen && !document.fullscreenElement) {
+              requestNativeFullscreen();
+            }
+          }}
           aria-label="Next image"
         >
           <span style={{ fontSize: 32 }}>❯</span>
