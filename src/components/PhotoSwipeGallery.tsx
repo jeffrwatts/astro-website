@@ -57,20 +57,22 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
       indexIndicatorSep: ' / ',
       preloaderDelay: 2000,
       errorMsg: '<div class="pswp__error-msg">The image <a href="%url%" target="_blank">cannot be loaded</a>.</div>',
-      // Enable fullscreen and share
-      allowFullscreen: true,
-      // UI elements - explicitly enable all
-      closeEl: true,
-      shareEl: true,
-      fullscreenEl: true,
-      zoomEl: true,
-      counterEl: true,
-      arrowEl: true,
-      preloaderEl: true,
-      // Share options
-      shareButtons: [
-        { id: 'download', label: 'Download image', url: '{{raw_image_url}}', download: true }
-      ],
+      // PhotoSwipe v5 UI configuration
+      ui: {
+        closeEl: true,
+        shareEl: true,
+        fullscreenEl: true,
+        zoomEl: true,
+        counterEl: true,
+        arrowEl: true,
+        preloaderEl: true,
+      },
+      // Share options for v5
+      share: {
+        buttons: [
+          { id: 'download', label: 'Download image', url: '{{raw_image_url}}', download: true }
+        ]
+      },
     };
 
     pswpInstanceRef.current = new PhotoSwipe(options);
