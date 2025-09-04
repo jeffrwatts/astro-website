@@ -25,6 +25,13 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
   useEffect(() => {
     if (!pswpRef.current || pswpInstanceRef.current) return;
 
+    console.log('PhotoSwipe options:', {
+      allowFullscreen: true,
+      shareEl: true,
+      fullscreenEl: true,
+      items: items.length
+    });
+
     const options = {
       dataSource: items,
       index: currentIndex,
@@ -50,9 +57,9 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
       indexIndicatorSep: ' / ',
       preloaderDelay: 2000,
       errorMsg: '<div class="pswp__error-msg">The image <a href="%url%" target="_blank">cannot be loaded</a>.</div>',
-      // Enable fullscreen
+      // Enable fullscreen and share
       allowFullscreen: true,
-      // Ensure buttons are visible
+      // UI elements - explicitly enable all
       closeEl: true,
       shareEl: true,
       fullscreenEl: true,
@@ -60,6 +67,10 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
       counterEl: true,
       arrowEl: true,
       preloaderEl: true,
+      // Share options
+      shareButtons: [
+        { id: 'download', label: 'Download image', url: '{{raw_image_url}}', download: true }
+      ],
     };
 
     pswpInstanceRef.current = new PhotoSwipe(options);
