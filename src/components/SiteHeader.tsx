@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams, usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function SiteHeader() {
   const params = useSearchParams();
@@ -10,8 +11,19 @@ export default function SiteHeader() {
   if (hideForFullscreen || hideForDetailRoute) return null;
   return (
     <div style={{ padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 12 }}>
-      <div style={{ fontSize: 22, fontWeight: 700 }}>Pacific Deep Sky</div>
-      <div style={{ color: "var(--muted)", fontSize: 14 }}>Astrophotography by Jeff Ray Watts</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <Image 
+          src="/logo-white.png" 
+          alt="Island Skies Astro" 
+          width={32} 
+          height={32} 
+          style={{ objectFit: "contain" }}
+        />
+        <div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>Island Skies Astro</div>
+          <div style={{ color: "var(--muted)", fontSize: 14 }}>Astrophotography by Jeff Ray Watts</div>
+        </div>
+      </div>
     </div>
   );
 }
