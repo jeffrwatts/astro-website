@@ -98,6 +98,22 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
       setIsDetailOpen(false);
     });
     
+    // Register custom UI elements
+    pswpInstanceRef.current.on('uiRegister', function() {
+      if (pswpInstanceRef.current?.ui) {
+        pswpInstanceRef.current.ui.registerElement({
+          name: 'details-button',
+          ariaLabel: 'Toggle details',
+          order: 9,
+          isButton: true,
+          html: 'Details',
+          onClick: (event, el) => {
+            setIsDetailOpen(!isDetailOpen);
+          }
+        });
+      }
+    });
+    
     pswpInstanceRef.current.init();
 
     // Set initial current item
