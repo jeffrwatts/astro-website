@@ -159,18 +159,6 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
   const meta = manifestByFilename[filename];
   const title = meta?.displayName ?? filename;
   const url = `https://storage.googleapis.com/${BUCKET}/${filename}`;
-  const fsValue = ((): string | undefined => {
-    if (!searchParams) return undefined;
-    const raw = searchParams["fs"];
-    if (typeof raw === "string") return raw;
-    if (Array.isArray(raw)) return raw[0];
-    return undefined;
-  })();
-  const isFs = fsValue === "1";
-  
-  // Don't automatically preserve fullscreen state in navigation
-  // Only use fullscreen params for the current page, not for navigation
-  const navParams = new URLSearchParams();
 
   const allNames = await listFromManifest();
   const index = allNames.indexOf(filename);
@@ -189,51 +177,45 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
   } catch {}
 
   return (
-    <main style={{ minHeight: "100vh", padding: isFs ? 0 : 24 }}>
-      {/* When fullscreen (fs=1), hide details sidebar and let image fill viewport height */}
-      <div className="detailLayout" style={isFs ? { gridTemplateColumns: "minmax(0, 1fr)" } : undefined}>
+    <main style={{ minHeight: "100vh", padding: 24 }}>
+      <div className="detailLayout">
         <figure style={{ margin: 0 }}>
           <ImageViewer
             url={url}
             title={title}
             prevHref={prevName ? `/image/${encodeURIComponent(prevName)}` : undefined}
             nextHref={nextName ? `/image/${encodeURIComponent(nextName)}` : undefined}
-            pseudoFullscreen={isFs}
-            exitHref={`/image/${encodeURIComponent(filename)}`}
-            enterFsHref={`/image/${encodeURIComponent(filename)}?fs=1`}
             blurDataURL={meta?.blurDataURL}
           />
         </figure>
-        {!isFs && (
-          <aside className="detailAside">
-            <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
-                <div style={{ fontWeight: 700 }}>{title}</div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <Link href="/" aria-label="Close" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
-                    <span style={{ fontSize: 18 }}>✕</span>
-                  </Link>
-                </div>
+        <aside className="detailAside">
+          <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+              <div style={{ fontWeight: 700 }}>{title}</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <Link href="/" aria-label="Close" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
+                  <span style={{ fontSize: 18 }}>✕</span>
+                </Link>
               </div>
-              <div style={{ fontWeight: 600, marginBottom: 8 }}>Details</div>
-              {meta?.constellation && <div style={{ marginBottom: 6 }}>Constellation: {meta.constellation}</div>}
-              {typeof meta?.ra === "number" && typeof meta?.dec === "number" && (
-                <div style={{ marginBottom: 6 }}>
-                  RA: {formatRightAscension(meta.ra)}<br />
-                  Dec: {formatDeclination(meta.dec)}
-                </div>
-              )}
-              <div style={{ color: "#666", fontSize: 13, marginBottom: 12 }}>File: {filename}</div>
-              {descriptionHtml && (
-                <div>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>About this object</div>
-                  <div style={{ color: "#e5e7eb", lineHeight: 1.6, fontSize: 14 }}
-                       dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
-                </div>
-              )}
             </div>
-          </aside>
-        )}
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>Details</div>
+            {meta?.constellation && <div style={{ marginBottom: 6 }}>Constellation: {meta.constellation}</div>}
+            {typeof meta?.ra === "number" && typeof meta?.dec === "number" && (
+              <div style={{ marginBottom: 6 }}>
+                RA: {formatRightAscension(meta.ra)}<br />
+                Dec: {formatDeclination(meta.dec)}
+              </div>
+            )}
+            <div style={{ color: "#666", fontSize: 13, marginBottom: 12 }}>File: {filename}</div>
+            {descriptionHtml && (
+              <div>
+                <div style={{ fontWeight: 600, marginBottom: 6 }}>About this object</div>
+                <div style={{ color: "#e5e7eb", lineHeight: 1.6, fontSize: 14 }}
+                     dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+              </div>
+            )}
+          </div>
+        </aside>
       </div>
     </main>
   );

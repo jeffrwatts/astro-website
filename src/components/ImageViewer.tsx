@@ -10,29 +10,13 @@ type Props = {
   title: string;
   prevHref?: string;
   nextHref?: string;
-  pseudoFullscreen?: boolean;
-  exitHref?: string;
-  enterFsHref?: string;
   blurDataURL?: string;
 };
 
-export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false, exitHref, enterFsHref, blurDataURL }: Props) {
+export default function ImageViewer({ url, title, prevHref, nextHref, blurDataURL }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
-
-  const requestNativeFullscreen = React.useCallback(() => {
-    const el = document.documentElement as HTMLElement;
-    if (!document.fullscreenElement && el.requestFullscreen) {
-      void el.requestFullscreen().catch(() => { /* ignore */ });
-    }
-  }, []);
-
-  const exitNativeFullscreen = React.useCallback(() => {
-    if (document.fullscreenElement && document.exitFullscreen) {
-      void document.exitFullscreen().catch(() => { /* ignore */ });
-    }
-  }, []);
 
   const handleNavigation = React.useCallback((href: string) => {
     setIsLoading(true);
@@ -42,27 +26,7 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
   return (
     <div
       ref={containerRef}
-      style={pseudoFullscreen
-        ? { position: "relative", width: "100%", height: "100dvh", borderRadius: 0, overflow: "hidden" }
-        : { position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }
-      }
-      onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-        const target = e.target as HTMLElement | null;
-        if (target && target.closest && target.closest('a')) {
-          return; // Don't hijack clicks on navigation controls
-        }
-        if (!pseudoFullscreen) {
-          if (enterFsHref) {
-            // Try to enter native fullscreen first, then navigate to fs=1
-            if (!document.fullscreenElement) {
-              requestNativeFullscreen();
-            }
-            router.push(enterFsHref);
-          }
-        } else if (pseudoFullscreen && !document.fullscreenElement) {
-          requestNativeFullscreen();
-        }
-      }}
+      style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}
       onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
         e.currentTarget.dataset.touchX = String(e.touches[0].clientX);
       }}
@@ -85,7 +49,7 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
         src={url}
         alt={title}
         fill
-        style={{ objectFit: pseudoFullscreen ? "contain" : "cover", background: "#000" }}
+        style={{ objectFit: "cover", background: "#000" }}
         sizes="(max-width: 1024px) 100vw, 900px"
         quality={70}
         priority
@@ -121,38 +85,6 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
           }} />
           <span>Loading...</span>
         </div>
-      )}
-
-      {pseudoFullscreen && exitHref && (
-        <Link
-          href={exitHref}
-          aria-label="Exit fullscreen"
-          style={{
-            position: "absolute",
-            top: 12,
-            left: 12,
-            background: "rgba(0,0,0,0.6)",
-            color: "#fff",
-            width: 36,
-            height: 36,
-            borderRadius: 999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: "1px solid rgba(255,255,255,0.2)",
-            zIndex: 5,
-          }}
-          onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-            if (document.fullscreenElement) {
-              e.preventDefault();
-              exitNativeFullscreen();
-              // Allow router navigation after exiting native fullscreen
-              router.push(exitHref);
-            }
-          }}
-        >
-          <span style={{ fontSize: 16 }}>⤡</span>
-        </Link>
       )}
 
       {prevHref && (
