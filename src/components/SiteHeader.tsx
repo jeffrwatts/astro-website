@@ -10,7 +10,7 @@ export default function SiteHeader() {
   const hideForDetailRoute = pathname?.startsWith("/image/") ?? false;
   if (hideForFullscreen || hideForDetailRoute) return null;
   return (
-    <div style={{ padding: "12px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 12 }}>
+    <div style={{ padding: "4px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <Image 
           src="/logo-white.png" 
