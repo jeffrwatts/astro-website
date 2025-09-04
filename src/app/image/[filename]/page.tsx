@@ -167,8 +167,10 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
     return undefined;
   })();
   const isFs = fsValue === "1";
+  
+  // Don't automatically preserve fullscreen state in navigation
+  // Only use fullscreen params for the current page, not for navigation
   const navParams = new URLSearchParams();
-  if (isFs) navParams.set("fs", "1");
 
   const allNames = await listFromManifest();
   const index = allNames.indexOf(filename);
@@ -194,8 +196,8 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
           <ImageViewer
             url={url}
             title={title}
-            prevHref={prevName ? `/image/${encodeURIComponent(prevName)}${navParams.toString() ? `?${navParams.toString()}` : ""}` : undefined}
-            nextHref={nextName ? `/image/${encodeURIComponent(nextName)}${navParams.toString() ? `?${navParams.toString()}` : ""}` : undefined}
+            prevHref={prevName ? `/image/${encodeURIComponent(prevName)}` : undefined}
+            nextHref={nextName ? `/image/${encodeURIComponent(nextName)}` : undefined}
             pseudoFullscreen={isFs}
             exitHref={`/image/${encodeURIComponent(filename)}`}
             enterFsHref={`/image/${encodeURIComponent(filename)}?fs=1`}
