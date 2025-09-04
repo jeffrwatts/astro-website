@@ -36,11 +36,8 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
 
   const handleNavigation = React.useCallback((href: string) => {
     setIsLoading(true);
-    if (pseudoFullscreen && !document.fullscreenElement) {
-      requestNativeFullscreen();
-    }
     router.push(href);
-  }, [pseudoFullscreen, requestNativeFullscreen, router]);
+  }, [router]);
 
   return (
     <div
@@ -63,12 +60,6 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
             router.push(enterFsHref);
           }
         } else if (pseudoFullscreen && !document.fullscreenElement) {
-          requestNativeFullscreen();
-        }
-      }}
-      onLoadCapture={() => {
-        // When navigating next/prev, attempt to re-enter native fullscreen automatically.
-        if (pseudoFullscreen && !document.fullscreenElement) {
           requestNativeFullscreen();
         }
       }}
