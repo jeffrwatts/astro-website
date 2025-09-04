@@ -15,8 +15,8 @@ export default function SiteHeader() {
         <Image 
           src="/logo-white.png" 
           alt="Island Skies Astro" 
-          width={48} 
-          height={48} 
+          width={64} 
+          height={64} 
           style={{ objectFit: "contain" }}
         />
         <div>
