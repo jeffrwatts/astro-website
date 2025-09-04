@@ -41,7 +41,7 @@ export default async function Home() {
 			{items.length === 0 ? (
 				<p>No images found in bucket {BUCKET}.</p>
 			) : (
-				<ul style={{ display: "grid", gap: 24, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+				<ul style={{ display: "grid", gap: 24, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", listStyle: "none", margin: 0, padding: 0 }}>
 					{items.map((meta, index) => {
 						const isPriority = index < 8;
 						const name = meta.imageFilename;
