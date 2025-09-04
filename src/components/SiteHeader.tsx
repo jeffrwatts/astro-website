@@ -10,13 +10,13 @@ export default function SiteHeader() {
   const hideForDetailRoute = pathname?.startsWith("/image/") ?? false;
   if (hideForFullscreen || hideForDetailRoute) return null;
   return (
-    <div style={{ padding: "4px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 12 }}>
+    <div style={{ padding: "2px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <Image 
           src="/logo-white.png" 
           alt="Island Skies Astro" 
-          width={100} 
-          height={100} 
+          width={80} 
+          height={80} 
           style={{ objectFit: "contain" }}
         />
         <div>
