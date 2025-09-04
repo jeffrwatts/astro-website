@@ -21,7 +21,19 @@ export default function ImageViewer({ url, title, prevHref, nextHref, blurDataUR
 
   const handleNavigation = React.useCallback((href: string) => {
     setIsLoading(true);
-    router.push(href);
+    
+    // If we're in fullscreen, exit it first, then navigate
+    if (document.fullscreenElement) {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+        router.push(href);
+      }).catch(() => {
+        // If exit fails, just navigate
+        router.push(href);
+      });
+    } else {
+      router.push(href);
+    }
   }, [router]);
 
   const requestFullscreen = React.useCallback(() => {
@@ -61,6 +73,23 @@ export default function ImageViewer({ url, title, prevHref, nextHref, blurDataUR
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
+
+  // Re-enter fullscreen when navigating to new image if we were in fullscreen
+  React.useEffect(() => {
+    // Small delay to ensure the new image has loaded
+    const timer = setTimeout(() => {
+      if (isFullscreen && !document.fullscreenElement) {
+        const element = containerRef.current;
+        if (element) {
+          element.requestFullscreen().catch(() => {
+            // Ignore errors, user might have manually exited
+          });
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [url, isFullscreen]);
 
   return (
     <div
