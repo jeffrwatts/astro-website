@@ -26,6 +26,7 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
     if (!pswpRef.current || pswpInstanceRef.current) return;
 
     const options = {
+      dataSource: items,
       index: currentIndex,
       bgOpacity: 0.9,
       showHideOpacity: true,
@@ -43,9 +44,9 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
       arrowKeys: true,
       returnFocus: false,
       maxSpreadZoom: 3,
-      imageClickAction: 'zoom',
-      tapAction: 'toggle-controls',
-      doubleTapAction: 'zoom',
+      imageClickAction: 'zoom' as const,
+      tapAction: 'toggle-controls' as const,
+      doubleTapAction: 'zoom' as const,
       indexIndicatorSep: ' / ',
       preloaderDelay: 2000,
       errorMsg: '<div class="pswp__error-msg">The image <a href="%url%" target="_blank">cannot be loaded</a>.</div>',
@@ -63,7 +64,7 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
         pswpInstanceRef.current = null;
       }
     };
-  }, [currentIndex, onClose]);
+  }, [currentIndex, onClose, items]);
 
   return (
     <div

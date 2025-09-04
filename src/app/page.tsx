@@ -1,8 +1,6 @@
 import { fetchManifestArray } from "@/lib/gcs";
 import Gallery from "@/components/Gallery";
 
-const BUCKET = "astro-website-images";
-
 export default async function Home() {
   const manifest = await fetchManifestArray();
   const items = manifest
