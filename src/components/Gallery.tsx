@@ -23,13 +23,24 @@ export default function Gallery({ items }: Props) {
     setIsPhotoSwipeOpen(true);
   };
 
-  const photoSwipeItems = items.map((item) => ({
-    src: `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${item.imageFilename}`,
-    width: item.width || 1920,
-    height: item.height || 1080,
-    title: item.displayName || item.imageFilename,
-    alt: item.displayName || item.imageFilename,
-  }));
+  const photoSwipeItems = items.map((item) => {
+    // Use actual dimensions from manifest, or calculate aspect ratio from a sample image
+    const width = item.width || 1920;
+    const height = item.height || 1080;
+    
+    // Debug: log dimensions for first few items
+    if (items.indexOf(item) < 3) {
+      console.log(`Image ${item.imageFilename}: ${width}x${height} (from manifest: ${item.width}x${item.height})`);
+    }
+    
+    return {
+      src: `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${item.imageFilename}`,
+      width,
+      height,
+      title: item.displayName || item.imageFilename,
+      alt: item.displayName || item.imageFilename,
+    };
+  });
 
   return (
     <>
