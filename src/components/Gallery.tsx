@@ -34,6 +34,11 @@ export default function Gallery({ items }: Props) {
       height,
       title: item.displayName || item.imageFilename,
       alt: item.displayName || item.imageFilename,
+      objectId: item.objectId,
+      constellation: item.constellation,
+      ra: item.ra,
+      dec: item.dec,
+      description: item.description,
     };
   });
 
