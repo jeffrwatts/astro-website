@@ -230,28 +230,6 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
           )}
         </div>
       </div>
-
-      {/* Detail Toggle Button */}
-      <button
-        onClick={() => setIsDetailOpen(!isDetailOpen)}
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          background: 'rgba(255, 0, 0, 0.9)', // Red background for visibility
-          color: '#fff',
-          border: '2px solid #fff',
-          borderRadius: '8px',
-          padding: '12px 16px',
-          cursor: 'pointer',
-          zIndex: 99999, // Very high z-index
-          fontSize: '14px',
-          fontWeight: '500',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.5)',
-        }}
-      >
-        {isDetailOpen ? 'Hide Details' : 'Show Details'}
-      </button>
     </>
   );
 }
