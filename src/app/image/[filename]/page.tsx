@@ -144,7 +144,7 @@ function formatDeclination(degrees: number): string {
 	return `${ddStr}° ${mmStr}' ${ssStr}" ${suffix}`;
 }
 
-export default async function ImageDetail({ params }: { params: { filename: string } }) {
+export default async function ImageDetail({ params, searchParams }: { params: { filename: string }, searchParams: { fs?: string } }) {
   const raw = params.filename;
   const filename = decodeURIComponent(raw);
 
@@ -176,6 +176,8 @@ export default async function ImageDetail({ params }: { params: { filename: stri
     }
   } catch {}
 
+  const isFs = searchParams.fs === "1";
+
   return (
     <main style={{ minHeight: "100vh", padding: 24 }}>
       <div className="detailLayout">
@@ -188,34 +190,36 @@ export default async function ImageDetail({ params }: { params: { filename: stri
             blurDataURL={meta?.blurDataURL}
           />
         </figure>
-        <aside className="detailAside">
-          <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
-              <div style={{ fontWeight: 700 }}>{title}</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <Link href="/" aria-label="Close" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
-                  <span style={{ fontSize: 18 }}>✕</span>
-                </Link>
+        {!isFs && (
+          <aside className="detailAside">
+            <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+                <div style={{ fontWeight: 700 }}>{title}</div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <Link href="/" aria-label="Close" style={{ background: "rgba(75,85,99,0.65)", color: "#f3f4f6", width: 36, height: 36, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
+                    <span style={{ fontSize: 18 }}>✕</span>
+                  </Link>
+                </div>
               </div>
+              <div style={{ fontWeight: 600, marginBottom: 8 }}>Details</div>
+              {meta?.constellation && <div style={{ marginBottom: 6 }}>Constellation: {meta.constellation}</div>}
+              {typeof meta?.ra === "number" && typeof meta?.dec === "number" && (
+                <div style={{ marginBottom: 6 }}>
+                  RA: {formatRightAscension(meta.ra)}<br />
+                  Dec: {formatDeclination(meta.dec)}
+                </div>
+              )}
+              <div style={{ color: "#666", fontSize: 13, marginBottom: 12 }}>File: {filename}</div>
+              {descriptionHtml && (
+                <div>
+                  <div style={{ fontWeight: 600, marginBottom: 6 }}>About this object</div>
+                  <div style={{ color: "#e5e7eb", lineHeight: 1.6, fontSize: 14 }}
+                       dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+                </div>
+              )}
             </div>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>Details</div>
-            {meta?.constellation && <div style={{ marginBottom: 6 }}>Constellation: {meta.constellation}</div>}
-            {typeof meta?.ra === "number" && typeof meta?.dec === "number" && (
-              <div style={{ marginBottom: 6 }}>
-                RA: {formatRightAscension(meta.ra)}<br />
-                Dec: {formatDeclination(meta.dec)}
-              </div>
-            )}
-            <div style={{ color: "#666", fontSize: 13, marginBottom: 12 }}>File: {filename}</div>
-            {descriptionHtml && (
-              <div>
-                <div style={{ fontWeight: 600, marginBottom: 6 }}>About this object</div>
-                <div style={{ color: "#e5e7eb", lineHeight: 1.6, fontSize: 14 }}
-                     dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
-              </div>
-            )}
-          </div>
-        </aside>
+          </aside>
+        )}
       </div>
     </main>
   );

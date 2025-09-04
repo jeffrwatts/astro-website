@@ -22,15 +22,10 @@ export default function ImageViewer({ url, title, prevHref, nextHref, blurDataUR
   const handleNavigation = React.useCallback((href: string) => {
     setIsLoading(true);
     
-    // If we're in fullscreen, exit it first, then navigate
+    // If we're in fullscreen, preserve that state in the URL
     if (document.fullscreenElement) {
-      document.exitFullscreen().then(() => {
-        setIsFullscreen(false);
-        router.push(href);
-      }).catch(() => {
-        // If exit fails, just navigate
-        router.push(href);
-      });
+      const separator = href.includes('?') ? '&' : '?';
+      router.push(`${href}${separator}fs=1`);
     } else {
       router.push(href);
     }
@@ -74,22 +69,21 @@ export default function ImageViewer({ url, title, prevHref, nextHref, blurDataUR
     };
   }, []);
 
-  // Re-enter fullscreen when navigating to new image if we were in fullscreen
+  // Enter fullscreen if URL has fs=1 parameter
   React.useEffect(() => {
-    // Small delay to ensure the new image has loaded
-    const timer = setTimeout(() => {
-      if (isFullscreen && !document.fullscreenElement) {
-        const element = containerRef.current;
-        if (element) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('fs') === '1' && !document.fullscreenElement) {
+      const element = containerRef.current;
+      if (element) {
+        // Small delay to ensure the image has loaded
+        setTimeout(() => {
           element.requestFullscreen().catch(() => {
-            // Ignore errors, user might have manually exited
+            // Ignore errors, user might have blocked fullscreen
           });
-        }
+        }, 200);
       }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [url, isFullscreen]);
+    }
+  }, [url]);
 
   return (
     <div
