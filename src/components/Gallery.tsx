@@ -24,9 +24,9 @@ export default function Gallery({ items }: Props) {
   };
 
   const photoSwipeItems = items.map((item) => {
-    // Use actual dimensions from manifest, or calculate aspect ratio from a sample image
-    const width = item.width || 1920;
-    const height = item.height || 1080;
+    // Use actual dimensions from manifest, or use a more appropriate default for astrophotography
+    const width = item.width || 1600;
+    const height = item.height || 1200; // 4:3 aspect ratio, common for astrophotography
     
     return {
       src: `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${item.imageFilename}`,
