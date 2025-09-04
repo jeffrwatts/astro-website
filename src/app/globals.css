@@ -26,6 +26,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Loading spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Detail layout responsive: side-by-side on wide screens, stacked on narrow */
 .detailLayout {
   display: grid;

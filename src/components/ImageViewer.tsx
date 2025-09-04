@@ -19,6 +19,7 @@ type Props = {
 export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFullscreen = false, exitHref, enterFsHref, blurDataURL }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const requestNativeFullscreen = React.useCallback(() => {
     const el = document.documentElement as HTMLElement;
@@ -32,6 +33,14 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
       void document.exitFullscreen().catch(() => { /* ignore */ });
     }
   }, []);
+
+  const handleNavigation = React.useCallback((href: string) => {
+    setIsLoading(true);
+    if (pseudoFullscreen && !document.fullscreenElement) {
+      requestNativeFullscreen();
+    }
+    router.push(href);
+  }, [pseudoFullscreen, requestNativeFullscreen, router]);
 
   return (
     <div
@@ -74,15 +83,9 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
         const dx = endX - startX;
         if (Math.abs(dx) > 40) {
           if (dx < 0 && nextHref) {
-            if (pseudoFullscreen && !document.fullscreenElement) {
-              requestNativeFullscreen();
-            }
-            router.push(nextHref);
+            handleNavigation(nextHref);
           } else if (dx > 0 && prevHref) {
-            if (pseudoFullscreen && !document.fullscreenElement) {
-              requestNativeFullscreen();
-            }
-            router.push(prevHref);
+            handleNavigation(prevHref);
           }
         }
       }}
@@ -97,7 +100,37 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
         priority
         placeholder={blurDataURL ? "blur" : undefined}
         blurDataURL={blurDataURL}
+        onLoad={() => setIsLoading(false)}
+        onError={() => setIsLoading(false)}
       />
+
+      {/* Loading indicator */}
+      {isLoading && (
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "rgba(0,0,0,0.8)",
+          color: "#fff",
+          padding: "16px 24px",
+          borderRadius: 8,
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          zIndex: 10,
+        }}>
+          <div style={{
+            width: 20,
+            height: 20,
+            border: "2px solid rgba(255,255,255,0.3)",
+            borderTop: "2px solid #fff",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+          }} />
+          <span>Loading...</span>
+        </div>
+      )}
 
       {pseudoFullscreen && exitHref && (
         <Link
@@ -116,6 +149,7 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
             alignItems: "center",
             justifyContent: "center",
             border: "1px solid rgba(255,255,255,0.2)",
+            zIndex: 5,
           }}
           onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
             if (document.fullscreenElement) {
@@ -131,8 +165,8 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
       )}
 
       {prevHref && (
-        <Link
-          href={prevHref}
+        <button
+          onClick={() => handleNavigation(prevHref)}
           style={{
             position: "absolute",
             top: "50%",
@@ -148,22 +182,20 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
             justifyContent: "center",
             opacity: 0.35,
             transition: "opacity 150ms ease-in-out",
+            border: "none",
+            cursor: "pointer",
+            zIndex: 5,
           }}
-          onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
-          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0.35"; }}
-          onClick={() => {
-            if (pseudoFullscreen && !document.fullscreenElement) {
-              requestNativeFullscreen();
-            }
-          }}
+          onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.opacity = "1"; }}
+          onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.opacity = "0.35"; }}
           aria-label="Previous image"
         >
           <span style={{ fontSize: 32 }}>❮</span>
-        </Link>
+        </button>
       )}
       {nextHref && (
-        <Link
-          href={nextHref}
+        <button
+          onClick={() => handleNavigation(nextHref)}
           style={{
             position: "absolute",
             top: "50%",
@@ -179,18 +211,16 @@ export default function ImageViewer({ url, title, prevHref, nextHref, pseudoFull
             justifyContent: "center",
             opacity: 0.35,
             transition: "opacity 150ms ease-in-out",
+            border: "none",
+            cursor: "pointer",
+            zIndex: 5,
           }}
-          onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "1"; }}
-          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.opacity = "0.35"; }}
-          onClick={() => {
-            if (pseudoFullscreen && !document.fullscreenElement) {
-              requestNativeFullscreen();
-            }
-          }}
+          onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.opacity = "1"; }}
+          onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.opacity = "0.35"; }}
           aria-label="Next image"
         >
           <span style={{ fontSize: 32 }}>❯</span>
-        </Link>
+        </button>
       )}
     </div>
   );
