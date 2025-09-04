@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -11,22 +10,70 @@ type Props = {
   prevHref?: string;
   nextHref?: string;
   blurDataURL?: string;
+  onFullscreenToggle?: () => void;
 };
 
-export default function ImageViewer({ url, title, prevHref, nextHref, blurDataURL }: Props) {
+export default function ImageViewer({ url, title, prevHref, nextHref, blurDataURL, onFullscreenToggle }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
 
   const handleNavigation = React.useCallback((href: string) => {
     setIsLoading(true);
     router.push(href);
   }, [router]);
 
+  const requestFullscreen = React.useCallback(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    if (!document.fullscreenElement) {
+      element.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+      }).catch((err) => {
+        console.log('Error attempting to enable fullscreen:', err);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+      }).catch((err) => {
+        console.log('Error attempting to exit fullscreen:', err);
+      });
+    }
+  }, []);
+
+  const handleFullscreenToggle = React.useCallback(() => {
+    requestFullscreen();
+    if (onFullscreenToggle) {
+      onFullscreenToggle();
+    }
+  }, [requestFullscreen, onFullscreenToggle]);
+
+  // Listen for fullscreen changes
+  React.useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   return (
     <div
       ref={containerRef}
-      style={{ position: "relative", width: "100%", height: 0, paddingBottom: "66%", borderRadius: 8, overflow: "hidden" }}
+      style={{ 
+        position: "relative", 
+        width: "100%", 
+        height: isFullscreen ? "100vh" : 0, 
+        paddingBottom: isFullscreen ? 0 : "66%", 
+        borderRadius: isFullscreen ? 0 : 8, 
+        overflow: "hidden",
+        background: isFullscreen ? "#000" : "transparent"
+      }}
       onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
         e.currentTarget.dataset.touchX = String(e.touches[0].clientX);
       }}
@@ -48,8 +95,12 @@ export default function ImageViewer({ url, title, prevHref, nextHref, blurDataUR
       <Image
         src={url}
         alt={title}
-        fill
-        style={{ objectFit: "cover", background: "#000" }}
+        fill={!isFullscreen}
+        style={{ 
+          objectFit: isFullscreen ? "contain" : "cover", 
+          background: "#000",
+          ...(isFullscreen && { position: "absolute", top: 0, left: 0, width: "100%", height: "100%" })
+        }}
         sizes="(max-width: 1024px) 100vw, 900px"
         quality={70}
         priority
@@ -86,6 +137,30 @@ export default function ImageViewer({ url, title, prevHref, nextHref, blurDataUR
           <span>Loading...</span>
         </div>
       )}
+
+      {/* Fullscreen toggle button */}
+      <button
+        onClick={handleFullscreenToggle}
+        style={{
+          position: "absolute",
+          top: 12,
+          right: 12,
+          background: "rgba(0,0,0,0.6)",
+          color: "#fff",
+          width: 36,
+          height: 36,
+          borderRadius: 999,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "1px solid rgba(255,255,255,0.2)",
+          cursor: "pointer",
+          zIndex: 5,
+        }}
+        aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+      >
+        <span style={{ fontSize: 16 }}>{isFullscreen ? "⤡" : "⛶"}</span>
+      </button>
 
       {prevHref && (
         <button

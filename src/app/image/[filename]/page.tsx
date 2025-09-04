@@ -144,7 +144,7 @@ function formatDeclination(degrees: number): string {
 	return `${ddStr}° ${mmStr}' ${ssStr}" ${suffix}`;
 }
 
-export default async function ImageDetail({ params, searchParams }: { params: { filename: string }, searchParams?: { [key: string]: string | string[] | undefined } }) {
+export default async function ImageDetail({ params }: { params: { filename: string } }) {
   const raw = params.filename;
   const filename = decodeURIComponent(raw);
 
