@@ -92,8 +92,9 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
     
     // Add event listeners
     pswpInstanceRef.current.on('close', onClose);
-    pswpInstanceRef.current.on('change', (e: any) => {
-      setCurrentItem(items[e.index]);
+    pswpInstanceRef.current.on('change', () => {
+      const currentIndex = pswpInstanceRef.current?.options.index || 0;
+      setCurrentItem(items[currentIndex]);
       setIsDetailOpen(false);
     });
     
