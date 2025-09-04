@@ -52,7 +52,14 @@ export default function PhotoSwipeGallery({ items, currentIndex, onClose }: Prop
       errorMsg: '<div class="pswp__error-msg">The image <a href="%url%" target="_blank">cannot be loaded</a>.</div>',
       // Enable fullscreen
       allowFullscreen: true,
+      // Ensure buttons are visible
+      closeEl: true,
+      shareEl: true,
       fullscreenEl: true,
+      zoomEl: true,
+      counterEl: true,
+      arrowEl: true,
+      preloaderEl: true,
     };
 
     pswpInstanceRef.current = new PhotoSwipe(options);
