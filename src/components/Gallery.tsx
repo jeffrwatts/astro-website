@@ -28,11 +28,6 @@ export default function Gallery({ items }: Props) {
     const width = item.width || 1920;
     const height = item.height || 1080;
     
-    // Debug: log dimensions for first few items
-    if (items.indexOf(item) < 3) {
-      console.log(`Image ${item.imageFilename}: ${width}x${height} (from manifest: ${item.width}x${item.height})`);
-    }
-    
     return {
       src: `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${item.imageFilename}`,
       width,
