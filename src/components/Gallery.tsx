@@ -24,7 +24,7 @@ export default function Gallery({ items }: Props) {
   };
 
   const photoSwipeItems = items.map((item) => ({
-    src: `https://storage.googleapis.com/astro-website-images/${item.imageFilename}`,
+    src: `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${item.imageFilename}`,
     width: item.width || 1920,
     height: item.height || 1080,
     title: item.displayName || item.imageFilename,
@@ -41,7 +41,7 @@ export default function Gallery({ items }: Props) {
             {items.map((meta, index) => {
               const isPriority = index < 8;
               const name = meta.imageFilename;
-              const url = `https://storage.googleapis.com/astro-website-images/${name}`;
+              const url = `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${name}`;
               const title = meta?.displayName ?? name;
               return (
                 <li key={name}>
