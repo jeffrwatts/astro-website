@@ -20,7 +20,7 @@ export default function SiteHeader() {
           style={{ objectFit: "contain" }}
         />
         <div>
-          <div style={{ fontSize: 24, fontWeight: 700 }}>Island Skies Astro</div>
+          <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-cinzel)" }}>Island Skies Astro</div>
           <div style={{ color: "var(--muted)", fontSize: 15 }}>Astrophotography by Jeff Ray Watts</div>
         </div>
       </div>

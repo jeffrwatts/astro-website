@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Cinzel } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import { Suspense } from "react";
@@ -14,8 +15,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "Pacific Deep Sky",
+  title: "Island Skies Astro",
   description: "Astrophotography by Jeff Ray Watts",
 };
 
@@ -26,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable}`}>
         <Suspense fallback={null}>
           <SiteHeader />
         </Suspense>
