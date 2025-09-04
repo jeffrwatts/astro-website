@@ -188,6 +188,7 @@ export default async function ImageDetail({ params, searchParams }: { params: { 
             prevHref={prevName ? `/image/${encodeURIComponent(prevName)}` : undefined}
             nextHref={nextName ? `/image/${encodeURIComponent(nextName)}` : undefined}
             blurDataURL={meta?.blurDataURL}
+            initialFullscreen={isFs}
           />
         </figure>
         {!isFs && (

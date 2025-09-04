@@ -11,13 +11,14 @@ type Props = {
   nextHref?: string;
   blurDataURL?: string;
   onFullscreenToggle?: () => void;
+  initialFullscreen?: boolean;
 };
 
-export default function ImageViewer({ url, title, prevHref, nextHref, blurDataURL, onFullscreenToggle }: Props) {
+export default function ImageViewer({ url, title, prevHref, nextHref, blurDataURL, onFullscreenToggle, initialFullscreen = false }: Props) {
   const router = useRouter();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isFullscreen, setIsFullscreen] = React.useState(false);
+  const [isFullscreen, setIsFullscreen] = React.useState(initialFullscreen);
 
   const handleNavigation = React.useCallback((href: string) => {
     setIsLoading(true);
@@ -69,10 +70,9 @@ export default function ImageViewer({ url, title, prevHref, nextHref, blurDataUR
     };
   }, []);
 
-  // Enter fullscreen if URL has fs=1 parameter
+  // Enter fullscreen if initialFullscreen is true and we're not already in fullscreen
   React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('fs') === '1' && !document.fullscreenElement) {
+    if (initialFullscreen && !document.fullscreenElement) {
       const element = containerRef.current;
       if (element) {
         // Small delay to ensure the image has loaded
@@ -83,7 +83,7 @@ export default function ImageViewer({ url, title, prevHref, nextHref, blurDataUR
         }, 200);
       }
     }
-  }, [url]);
+  }, [initialFullscreen]);
 
   return (
     <div
