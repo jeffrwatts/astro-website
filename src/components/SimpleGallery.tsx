@@ -19,10 +19,37 @@ type Props = {
 export default function SimpleGallery({ images }: Props) {
   const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
 
   const handleImageError = (imageId: string) => {
     setFailedImages(prev => new Set(prev).add(imageId));
   };
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!touchStart) return;
+    
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStart.x;
+    const deltaY = touch.clientY - touchStart.y;
+    
+    // Only handle horizontal swipes (ignore vertical scrolling)
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      if (deltaX > 0) {
+        // Swipe right - go to previous
+        goToPrevious();
+      } else {
+        // Swipe left - go to next
+        goToNext();
+      }
+    }
+    
+    setTouchStart(null);
+  }, [touchStart, goToPrevious, goToNext]);
 
   const getCurrentIndex = useCallback(() => {
     if (!selectedImage) return -1;
@@ -78,9 +105,8 @@ export default function SimpleGallery({ images }: Props) {
               onClick={() => !hasFailed && setSelectedImage(image)}
               style={{
                 cursor: hasFailed ? "default" : "pointer",
-                borderRadius: "4px",
+                borderRadius: "12px",
                 overflow: "hidden",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
                 opacity: hasFailed ? 0.5 : 1
               }}
             >
@@ -124,18 +150,22 @@ export default function SimpleGallery({ images }: Props) {
 
       {/* Detail View */}
       {selectedImage && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "#000",
-          zIndex: 1000,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden"
-        }}>
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "#000",
+            zIndex: 1000,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden"
+          }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Subtle close button */}
           <div style={{
             position: "absolute",
