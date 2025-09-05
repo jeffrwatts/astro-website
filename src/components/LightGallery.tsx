@@ -1,14 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
-import LightGallery from 'lightgallery';
-import lgThumbnail from 'lg-thumbnail';
-import lgZoom from 'lg-zoom';
-import lgFullscreen from 'lg-fullscreen';
-import lgAutoplay from 'lg-autoplay';
-import lgShare from 'lg-share';
-import lgPager from 'lg-pager';
-import lgRotate from 'lg-rotate';
 
 // Import LightGallery CSS
 import 'lightgallery/css/lightgallery.css';
@@ -51,62 +43,87 @@ export default function LightGalleryComponent({ items, currentIndex, onClose }: 
       currentIndex
     });
 
-    const options = {
-      plugins: [lgThumbnail, lgZoom, lgFullscreen, lgAutoplay, lgShare, lgPager, lgRotate],
-      mode: 'lg-fade',
-      cssEasing: 'cubic-bezier(0.25, 0, 0.25, 1)',
-      speed: 600,
-      height: '100%',
-      width: '100%',
-      addClass: 'lg-custom-class',
-      startClass: 'lg-start-zoom',
-      backdropDuration: 150,
-      hideBarsDelay: 6000,
-      useLeft: false,
-      closable: true,
-      swipeToClose: true,
-      closeOnTap: true,
-      enableDrag: true,
-      enableSwipe: true,
-      dynamic: true,
-      dynamicEl: items.map(item => ({
-        src: item.src,
-        thumb: item.src,
-        subHtml: `<h4>${item.title || item.alt || ''}</h4>`,
-        responsive: [
-          {
-            breakpoint: 1400,
-            html: `<img src="${item.src}" alt="${item.alt || ''}" style="max-width: 100%; max-height: 100%;" />`
-          }
-        ]
-      })),
-      index: currentIndex,
-      // Fullscreen options
-      fullScreen: true,
-      // Zoom options
-      zoom: true,
-      actualSize: true,
-      // Thumbnail options
-      thumbnail: true,
-      thumbWidth: 100,
-      thumbHeight: '80px',
-      thumbContHeight: 100,
-      // Share options
-      share: true,
-      // Autoplay options
-      autoplay: false,
-      // Pager options
-      pager: true,
-      // Rotate options
-      rotate: true,
+    // Dynamic import to avoid SSR issues
+    const initLightGallery = async () => {
+      const [
+        { default: LightGallery },
+        { default: lgThumbnail },
+        { default: lgZoom },
+        { default: lgFullscreen },
+        { default: lgAutoplay },
+        { default: lgShare },
+        { default: lgPager },
+        { default: lgRotate }
+      ] = await Promise.all([
+        import('lightgallery'),
+        import('lg-thumbnail'),
+        import('lg-zoom'),
+        import('lg-fullscreen'),
+        import('lg-autoplay'),
+        import('lg-share'),
+        import('lg-pager'),
+        import('lg-rotate')
+      ]);
+
+      const options = {
+        plugins: [lgThumbnail, lgZoom, lgFullscreen, lgAutoplay, lgShare, lgPager, lgRotate],
+        mode: 'lg-fade',
+        cssEasing: 'cubic-bezier(0.25, 0, 0.25, 1)',
+        speed: 600,
+        height: '100%',
+        width: '100%',
+        addClass: 'lg-custom-class',
+        startClass: 'lg-start-zoom',
+        backdropDuration: 150,
+        hideBarsDelay: 6000,
+        useLeft: false,
+        closable: true,
+        swipeToClose: true,
+        closeOnTap: true,
+        enableDrag: true,
+        enableSwipe: true,
+        dynamic: true,
+        dynamicEl: items.map(item => ({
+          src: item.src,
+          thumb: item.src,
+          subHtml: `<h4>${item.title || item.alt || ''}</h4>`,
+          responsive: [
+            {
+              breakpoint: 1400,
+              html: `<img src="${item.src}" alt="${item.alt || ''}" style="max-width: 100%; max-height: 100%;" />`
+            }
+          ]
+        })),
+        index: currentIndex,
+        // Fullscreen options
+        fullScreen: true,
+        // Zoom options
+        zoom: true,
+        actualSize: true,
+        // Thumbnail options
+        thumbnail: true,
+        thumbWidth: 100,
+        thumbHeight: '80px',
+        thumbContHeight: 100,
+        // Share options
+        share: true,
+        // Autoplay options
+        autoplay: false,
+        // Pager options
+        pager: true,
+        // Rotate options
+        rotate: true,
+      };
+
+      lightGalleryRef.current = LightGallery(galleryRef.current, options);
+
+      // Add event listeners
+      lightGalleryRef.current.on('lgClose', onClose);
+
+      lightGalleryRef.current.init();
     };
 
-    lightGalleryRef.current = LightGallery(galleryRef.current, options);
-
-    // Add event listeners
-    lightGalleryRef.current.on('lgClose', onClose);
-
-    lightGalleryRef.current.init();
+    initLightGallery();
 
     return () => {
       if (lightGalleryRef.current) {
