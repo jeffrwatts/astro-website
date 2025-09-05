@@ -107,12 +107,35 @@ export default function SimpleGallery() {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.9)",
+          backgroundColor: "#000",
+          zIndex: 1000,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000
+          flexDirection: "column"
         }}>
+          {/* Header with close button */}
+          <div style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            zIndex: 1001
+          }}>
+            <button
+              onClick={() => setSelectedImage(null)}
+              style={{
+                background: "rgba(255, 255, 255, 0.2)",
+                border: "none",
+                color: "#fff",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "18px",
+                fontWeight: "bold"
+              }}
+            >
+              ✕ Close
+            </button>
+          </div>
+
           {/* Previous Button */}
           {getCurrentIndex() > 0 && (
             <button
@@ -125,10 +148,10 @@ export default function SimpleGallery() {
                 background: "rgba(255, 255, 255, 0.2)",
                 border: "none",
                 color: "#fff",
-                padding: "15px 20px",
+                padding: "20px 25px",
                 borderRadius: "50%",
                 cursor: "pointer",
-                fontSize: "24px",
+                fontSize: "32px",
                 zIndex: 1001
               }}
             >
@@ -148,10 +171,10 @@ export default function SimpleGallery() {
                 background: "rgba(255, 255, 255, 0.2)",
                 border: "none",
                 color: "#fff",
-                padding: "15px 20px",
+                padding: "20px 25px",
                 borderRadius: "50%",
                 cursor: "pointer",
-                fontSize: "24px",
+                fontSize: "32px",
                 zIndex: 1001
               }}
             >
@@ -159,47 +182,39 @@ export default function SimpleGallery() {
             </button>
           )}
 
+          {/* Full screen image */}
           <div style={{
-            maxWidth: "90%",
-            maxHeight: "90%",
-            backgroundColor: "#222",
-            borderRadius: "8px",
-            padding: "20px",
-            position: "relative"
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "80px 20px 20px 20px"
           }}>
-            <button
-              onClick={() => setSelectedImage(null)}
-              style={{
-                position: "absolute",
-                top: "10px",
-                right: "10px",
-                background: "rgba(255, 255, 255, 0.2)",
-                border: "none",
-                color: "#fff",
-                padding: "8px 12px",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontSize: "16px"
-              }}
-            >
-              ✕
-            </button>
-            
             <Image
               src={selectedImage.src}
               alt={selectedImage.title}
-              width={800}
-              height={600}
+              width={1200}
+              height={800}
               style={{
-                width: "100%",
-                height: "auto",
-                borderRadius: "4px",
-                marginBottom: "20px"
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain"
               }}
             />
-            
-            <h2 style={{ color: "#fff", marginBottom: "10px" }}>{selectedImage.title}</h2>
-            <p style={{ color: "#ccc", lineHeight: "1.6" }}>{selectedImage.description}</p>
+          </div>
+
+          {/* Image info at bottom */}
+          <div style={{
+            position: "absolute",
+            bottom: "20px",
+            left: "20px",
+            right: "20px",
+            background: "rgba(0, 0, 0, 0.8)",
+            padding: "20px",
+            borderRadius: "8px"
+          }}>
+            <h2 style={{ color: "#fff", marginBottom: "10px", fontSize: "24px" }}>{selectedImage.title}</h2>
+            <p style={{ color: "#ccc", lineHeight: "1.6", fontSize: "16px" }}>{selectedImage.description}</p>
           </div>
         </div>
       )}
