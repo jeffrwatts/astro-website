@@ -23,6 +23,8 @@ export default function SimpleGallery({ images }: Props) {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [mouseStart, setMouseStart] = useState<{ x: number; y: number } | null>(null);
+  const [lastPinchDistance, setLastPinchDistance] = useState<number | null>(null);
 
   const handleImageError = (imageId: string) => {
     setFailedImages(prev => new Set(prev).add(imageId));
@@ -33,10 +35,45 @@ export default function SimpleGallery({ images }: Props) {
     return images.findIndex(img => img.id === selectedImage.id);
   }, [selectedImage, images]);
 
+  const zoomLevels = [1, 1.5, 2, 3];
+  
   const resetZoom = useCallback(() => {
     setZoomLevel(1);
     setImagePosition({ x: 0, y: 0 });
   }, []);
+
+  const constrainPosition = useCallback((zoom: number, pos: { x: number; y: number }) => {
+    if (zoom <= 1) return { x: 0, y: 0 };
+    
+    // Calculate maximum allowed translation based on zoom level
+    const maxTranslateX = (zoom - 1) * 200; // Adjust based on your image size
+    const maxTranslateY = (zoom - 1) * 150;
+    
+    return {
+      x: Math.max(-maxTranslateX, Math.min(maxTranslateX, pos.x)),
+      y: Math.max(-maxTranslateY, Math.min(maxTranslateY, pos.y))
+    };
+  }, []);
+
+  const nextZoomLevel = useCallback(() => {
+    const currentIndex = zoomLevels.indexOf(zoomLevel);
+    if (currentIndex < zoomLevels.length - 1) {
+      const newZoom = zoomLevels[currentIndex + 1];
+      setZoomLevel(newZoom);
+      setImagePosition(prev => constrainPosition(newZoom, prev));
+    }
+  }, [zoomLevel, constrainPosition]);
+
+  const prevZoomLevel = useCallback(() => {
+    const currentIndex = zoomLevels.indexOf(zoomLevel);
+    if (currentIndex > 0) {
+      const newZoom = zoomLevels[currentIndex - 1];
+      setZoomLevel(newZoom);
+      setImagePosition(prev => constrainPosition(newZoom, prev));
+    } else {
+      resetZoom();
+    }
+  }, [zoomLevel, resetZoom, constrainPosition]);
 
   const goToPrevious = useCallback(() => {
     const currentIndex = getCurrentIndex();
@@ -56,21 +93,67 @@ export default function SimpleGallery({ images }: Props) {
 
   const handleImageClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    if (zoomLevel === 1) {
-      setZoomLevel(2);
-    } else {
-      resetZoom();
+    nextZoomLevel();
+  }, [nextZoomLevel]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (zoomLevel > 1) {
+      e.preventDefault();
+      setMouseStart({ x: e.clientX, y: e.clientY });
+      setIsDragging(true);
     }
-  }, [zoomLevel, resetZoom]);
+  }, [zoomLevel]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (isDragging && mouseStart && zoomLevel > 1) {
+      e.preventDefault();
+      const deltaX = e.clientX - mouseStart.x;
+      const deltaY = e.clientY - mouseStart.y;
+      
+      setImagePosition(prev => {
+        const newPos = {
+          x: prev.x + deltaX,
+          y: prev.y + deltaY
+        };
+        return constrainPosition(zoomLevel, newPos);
+      });
+      
+      setMouseStart({ x: e.clientX, y: e.clientY });
+    }
+  }, [isDragging, mouseStart, zoomLevel, constrainPosition]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+    setMouseStart(null);
+  }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      // Scroll up - zoom in
+      nextZoomLevel();
+    } else {
+      // Scroll down - zoom out
+      prevZoomLevel();
+    }
+  }, [nextZoomLevel, prevZoomLevel]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       const touch = e.touches[0];
       setTouchStart({ x: touch.clientX, y: touch.clientY });
       setIsDragging(false);
+      setLastPinchDistance(null);
     } else if (e.touches.length === 2) {
       // Pinch zoom - prevent default behavior
       e.preventDefault();
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.sqrt(
+        Math.pow(touch2.clientX - touch1.clientX, 2) + 
+        Math.pow(touch2.clientY - touch1.clientY, 2)
+      );
+      setLastPinchDistance(distance);
     }
   }, []);
 
@@ -83,14 +166,17 @@ export default function SimpleGallery({ images }: Props) {
         const deltaX = touch.clientX - touchStart.x;
         const deltaY = touch.clientY - touchStart.y;
         
-        setImagePosition(prev => ({
-          x: prev.x + deltaX,
-          y: prev.y + deltaY
-        }));
+        setImagePosition(prev => {
+          const newPos = {
+            x: prev.x + deltaX,
+            y: prev.y + deltaY
+          };
+          return constrainPosition(zoomLevel, newPos);
+        });
         setTouchStart({ x: touch.clientX, y: touch.clientY });
         setIsDragging(true);
       }
-    } else if (e.touches.length === 2) {
+    } else if (e.touches.length === 2 && lastPinchDistance) {
       // Pinch zoom
       e.preventDefault();
       const touch1 = e.touches[0];
@@ -100,11 +186,24 @@ export default function SimpleGallery({ images }: Props) {
         Math.pow(touch2.clientY - touch1.clientY, 2)
       );
       
-      // Simple zoom based on distance (you can make this more sophisticated)
-      const newZoom = Math.max(1, Math.min(3, distance / 200));
-      setZoomLevel(newZoom);
+      const scaleChange = distance / lastPinchDistance;
+      const currentIndex = zoomLevels.indexOf(zoomLevel);
+      
+      if (scaleChange > 1.1 && currentIndex < zoomLevels.length - 1) {
+        // Zoom in
+        const newZoom = zoomLevels[currentIndex + 1];
+        setZoomLevel(newZoom);
+        setImagePosition(prev => constrainPosition(newZoom, prev));
+        setLastPinchDistance(distance);
+      } else if (scaleChange < 0.9 && currentIndex > 0) {
+        // Zoom out
+        const newZoom = zoomLevels[currentIndex - 1];
+        setZoomLevel(newZoom);
+        setImagePosition(prev => constrainPosition(newZoom, prev));
+        setLastPinchDistance(distance);
+      }
     }
-  }, [touchStart, zoomLevel]);
+  }, [touchStart, zoomLevel, lastPinchDistance, zoomLevels, constrainPosition]);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 0) {
@@ -363,13 +462,19 @@ export default function SimpleGallery({ images }: Props) {
               src={selectedImage.src}
               alt={selectedImage.title}
               onClick={handleImageClick}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onWheel={handleWheel}
               style={{
                 maxWidth: "100%",
                 maxHeight: "100%",
                 objectFit: "contain",
                 transform: `scale(${zoomLevel}) translate(${imagePosition.x / zoomLevel}px, ${imagePosition.y / zoomLevel}px)`,
                 transition: zoomLevel === 1 ? "transform 0.3s ease" : "none",
-                cursor: zoomLevel === 1 ? "zoom-in" : "zoom-out"
+                cursor: zoomLevel === 1 ? "zoom-in" : (isDragging ? "grabbing" : "grab"),
+                userSelect: "none"
               }}
               onLoad={() => console.log("Detail image loaded:", selectedImage.src)}
               onError={(e) => console.error("Detail image failed:", selectedImage.src, e)}
