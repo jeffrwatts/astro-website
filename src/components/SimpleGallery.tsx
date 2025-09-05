@@ -1,51 +1,67 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { fetchManifestArray } from "@/lib/gcs";
 
-// Hardcoded images for testing
-const hardcodedImages = [
-  {
-    id: 1,
-    src: "https://storage.googleapis.com/astro-website-images-astrowebsite-470903/m31.jpg",
-    title: "Andromeda Galaxy",
-    description: "The Andromeda Galaxy is the nearest major galaxy to the Milky Way."
-  },
-  {
-    id: 2,
-    src: "https://storage.googleapis.com/astro-website-images-astrowebsite-470903/m42.jpg",
-    title: "Orion Nebula",
-    description: "The Orion Nebula is a diffuse nebula situated in the Milky Way."
-  },
-  {
-    id: 3,
-    src: "https://storage.googleapis.com/astro-website-images-astrowebsite-470903/m8.jpg",
-    title: "Lagoon Nebula",
-    description: "The Lagoon Nebula is a giant interstellar cloud in the constellation Sagittarius."
-  }
-];
+type ImageItem = {
+  id: string;
+  src: string;
+  title: string;
+  description: string;
+  width: number;
+  height: number;
+};
 
 export default function SimpleGallery() {
-  const [selectedImage, setSelectedImage] = useState<typeof hardcodedImages[0] | null>(null);
+  const [images, setImages] = useState<ImageItem[]>([]);
+  const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const getCurrentIndex = () => {
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const manifest = await fetchManifestArray();
+        const imageItems: ImageItem[] = manifest
+          .filter((item) => item && typeof item.imageFilename === "string" && /\.(jpe?g|png|webp|tiff?)$/i.test(item.imageFilename))
+          .map((item) => ({
+            id: item.imageFilename,
+            src: `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${item.imageFilename}`,
+            title: item.displayName || item.imageFilename,
+            description: `Astrophotography image: ${item.displayName || item.imageFilename}`,
+            width: item.width || 1600,
+            height: item.height || 1200,
+          }));
+        
+        setImages(imageItems);
+      } catch (error) {
+        console.error("Failed to load images:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadImages();
+  }, []);
+
+  const getCurrentIndex = useCallback(() => {
     if (!selectedImage) return -1;
-    return hardcodedImages.findIndex(img => img.id === selectedImage.id);
-  };
+    return images.findIndex(img => img.id === selectedImage.id);
+  }, [selectedImage, images]);
 
-  const goToPrevious = () => {
+  const goToPrevious = useCallback(() => {
     const currentIndex = getCurrentIndex();
     if (currentIndex > 0) {
-      setSelectedImage(hardcodedImages[currentIndex - 1]);
+      setSelectedImage(images[currentIndex - 1]);
     }
-  };
+  }, [images, getCurrentIndex]);
 
-  const goToNext = () => {
+  const goToNext = useCallback(() => {
     const currentIndex = getCurrentIndex();
-    if (currentIndex < hardcodedImages.length - 1) {
-      setSelectedImage(hardcodedImages[currentIndex + 1]);
+    if (currentIndex < images.length - 1) {
+      setSelectedImage(images[currentIndex + 1]);
     }
-  };
+  }, [images, getCurrentIndex]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -63,41 +79,47 @@ export default function SimpleGallery() {
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [selectedImage]);
+  }, [selectedImage, goToPrevious, goToNext]);
 
   return (
     <div style={{ padding: "20px" }}>
-      {/* Image Grid */}
-      <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
-        gap: "20px"
-      }}>
-        {hardcodedImages.map((image) => (
-          <div
-            key={image.id}
-            onClick={() => setSelectedImage(image)}
-            style={{
-              cursor: "pointer",
-              borderRadius: "4px",
-              overflow: "hidden",
-              border: "1px solid rgba(255, 255, 255, 0.1)"
-            }}
-          >
-            <Image
-              src={image.src}
-              alt={image.title}
-              width={300}
-              height={200}
-              style={{
-                width: "100%",
-                height: "200px",
-                objectFit: "cover"
-              }}
-            />
+      {loading ? (
+        <div style={{ color: "#fff", textAlign: "center", padding: "40px" }}>
+          Loading images...
+        </div>
+      ) : (
+        <>
+          {/* Image Grid */}
+          <div style={{ 
+            display: "grid", 
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
+            gap: "20px"
+          }}>
+            {images.map((image) => (
+              <div
+                key={image.id}
+                onClick={() => setSelectedImage(image)}
+                style={{
+                  cursor: "pointer",
+                  borderRadius: "4px",
+                  overflow: "hidden",
+                  border: "1px solid rgba(255, 255, 255, 0.1)"
+                }}
+              >
+                <Image
+                  src={image.src}
+                  alt={image.title}
+                  width={image.width}
+                  height={image.height}
+                  style={{
+                    width: "100%",
+                    height: "200px",
+                    objectFit: "cover"
+                  }}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
       {/* Detail View */}
       {selectedImage && (
@@ -160,7 +182,7 @@ export default function SimpleGallery() {
           )}
 
           {/* Next Button */}
-          {getCurrentIndex() < hardcodedImages.length - 1 && (
+          {getCurrentIndex() < images.length - 1 && (
             <button
               onClick={goToNext}
               style={{
@@ -193,8 +215,8 @@ export default function SimpleGallery() {
             <Image
               src={selectedImage.src}
               alt={selectedImage.title}
-              width={1200}
-              height={800}
+              width={selectedImage.width}
+              height={selectedImage.height}
               style={{
                 maxWidth: "100%",
                 maxHeight: "100%",
@@ -217,6 +239,8 @@ export default function SimpleGallery() {
             <p style={{ color: "#ccc", lineHeight: "1.6", fontSize: "16px" }}>{selectedImage.description}</p>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );
