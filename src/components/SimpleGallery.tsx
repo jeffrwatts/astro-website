@@ -133,29 +133,34 @@ export default function SimpleGallery({ images }: Props) {
           backgroundColor: "#000",
           zIndex: 1000,
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
+          overflow: "hidden"
         }}>
-          {/* Header with close button */}
+          {/* Subtle close button */}
           <div style={{
             position: "absolute",
-            top: "20px",
-            right: "20px",
+            top: "10px",
+            right: "10px",
             zIndex: 1001
           }}>
             <button
               onClick={() => setSelectedImage(null)}
               style={{
-                background: "rgba(255, 255, 255, 0.2)",
+                background: "rgba(0, 0, 0, 0.5)",
                 border: "none",
                 color: "#fff",
-                padding: "12px 16px",
-                borderRadius: "8px",
+                padding: "8px",
+                borderRadius: "50%",
                 cursor: "pointer",
-                fontSize: "18px",
-                fontWeight: "bold"
+                fontSize: "16px",
+                width: "32px",
+                height: "32px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
               }}
             >
-              ✕ Close
+              ✕
             </button>
           </div>
 
@@ -165,17 +170,22 @@ export default function SimpleGallery({ images }: Props) {
               onClick={goToPrevious}
               style={{
                 position: "absolute",
-                left: "20px",
+                left: "10px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                background: "rgba(255, 255, 255, 0.2)",
+                background: "rgba(0, 0, 0, 0.5)",
                 border: "none",
                 color: "#fff",
-                padding: "20px 25px",
+                padding: "12px",
                 borderRadius: "50%",
                 cursor: "pointer",
-                fontSize: "32px",
-                zIndex: 1001
+                fontSize: "24px",
+                zIndex: 1001,
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
               }}
             >
               ‹
@@ -188,17 +198,22 @@ export default function SimpleGallery({ images }: Props) {
               onClick={goToNext}
               style={{
                 position: "absolute",
-                right: "20px",
+                right: "10px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                background: "rgba(255, 255, 255, 0.2)",
+                background: "rgba(0, 0, 0, 0.5)",
                 border: "none",
                 color: "#fff",
-                padding: "20px 25px",
+                padding: "12px",
                 borderRadius: "50%",
                 cursor: "pointer",
-                fontSize: "32px",
-                zIndex: 1001
+                fontSize: "24px",
+                zIndex: 1001,
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
               }}
             >
               ›
@@ -207,11 +222,15 @@ export default function SimpleGallery({ images }: Props) {
 
           {/* Full screen image */}
           <div style={{
-            flex: 1,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "80px 20px 20px 20px"
+            padding: "0"
           }}>
             <img
               src={selectedImage.src}
@@ -224,20 +243,6 @@ export default function SimpleGallery({ images }: Props) {
               onLoad={() => console.log("Detail image loaded:", selectedImage.src)}
               onError={(e) => console.error("Detail image failed:", selectedImage.src, e)}
             />
-          </div>
-
-          {/* Image info at bottom */}
-          <div style={{
-            position: "absolute",
-            bottom: "20px",
-            left: "20px",
-            right: "20px",
-            background: "rgba(0, 0, 0, 0.8)",
-            padding: "20px",
-            borderRadius: "8px"
-          }}>
-            <h2 style={{ color: "#fff", marginBottom: "10px", fontSize: "24px" }}>{selectedImage.title}</h2>
-            <p style={{ color: "#ccc", lineHeight: "1.6", fontSize: "16px" }}>{selectedImage.description}</p>
           </div>
         </div>
       )}
