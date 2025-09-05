@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 // Hardcoded images for testing
@@ -27,6 +27,43 @@ const hardcodedImages = [
 
 export default function SimpleGallery() {
   const [selectedImage, setSelectedImage] = useState<typeof hardcodedImages[0] | null>(null);
+
+  const getCurrentIndex = () => {
+    if (!selectedImage) return -1;
+    return hardcodedImages.findIndex(img => img.id === selectedImage.id);
+  };
+
+  const goToPrevious = () => {
+    const currentIndex = getCurrentIndex();
+    if (currentIndex > 0) {
+      setSelectedImage(hardcodedImages[currentIndex - 1]);
+    }
+  };
+
+  const goToNext = () => {
+    const currentIndex = getCurrentIndex();
+    if (currentIndex < hardcodedImages.length - 1) {
+      setSelectedImage(hardcodedImages[currentIndex + 1]);
+    }
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (!selectedImage) return;
+      
+      if (event.key === 'ArrowLeft') {
+        goToPrevious();
+      } else if (event.key === 'ArrowRight') {
+        goToNext();
+      } else if (event.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [selectedImage]);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -82,6 +119,52 @@ export default function SimpleGallery() {
           justifyContent: "center",
           zIndex: 1000
         }}>
+          {/* Previous Button */}
+          {getCurrentIndex() > 0 && (
+            <button
+              onClick={goToPrevious}
+              style={{
+                position: "absolute",
+                left: "20px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "rgba(255, 255, 255, 0.2)",
+                border: "none",
+                color: "#fff",
+                padding: "15px 20px",
+                borderRadius: "50%",
+                cursor: "pointer",
+                fontSize: "24px",
+                zIndex: 1001
+              }}
+            >
+              ‹
+            </button>
+          )}
+
+          {/* Next Button */}
+          {getCurrentIndex() < hardcodedImages.length - 1 && (
+            <button
+              onClick={goToNext}
+              style={{
+                position: "absolute",
+                right: "20px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "rgba(255, 255, 255, 0.2)",
+                border: "none",
+                color: "#fff",
+                padding: "15px 20px",
+                borderRadius: "50%",
+                cursor: "pointer",
+                fontSize: "24px",
+                zIndex: 1001
+              }}
+            >
+              ›
+            </button>
+          )}
+
           <div style={{
             maxWidth: "90%",
             maxHeight: "90%",
