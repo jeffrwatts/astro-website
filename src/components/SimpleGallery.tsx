@@ -92,9 +92,10 @@ export default function SimpleGallery({ images }: Props) {
     <div style={{ padding: "12px" }}>
       {/* Image Grid */}
       <div style={{ 
-        columnCount: "auto",
-        columnWidth: "250px",
-        columnGap: "12px"
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gridAutoRows: "min-content",
+        gap: "12px"
       }}>
         {images.map((image) => {
           const hasFailed = failedImages.has(image.id);
@@ -108,10 +109,8 @@ export default function SimpleGallery({ images }: Props) {
                 borderRadius: "12px",
                 overflow: "hidden",
                 opacity: hasFailed ? 0.5 : 1,
-                breakInside: "avoid",
-                marginBottom: "12px",
-                display: "inline-block",
-                width: "100%"
+                display: "flex",
+                flexDirection: "column"
               }}
             >
               {hasFailed ? (
@@ -128,24 +127,24 @@ export default function SimpleGallery({ images }: Props) {
                   Failed to load
                 </div>
               ) : (
-                <Image
-                  src={image.src}
-                  alt={image.title}
-                  width={image.width}
-                  height={image.height}
-                  style={{
-                    width: "100%",
-                    height: "200px",
-                    objectFit: "contain"
-                  }}
-                  priority={false}
-                  loading="lazy"
-                  quality={75}
-                  unoptimized
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                  onError={() => handleImageError(image.id)}
-                />
+                                            <Image
+                              src={image.src}
+                              alt={image.title}
+                              width={image.width}
+                              height={image.height}
+                              style={{
+                                width: "100%",
+                                height: "auto",
+                                objectFit: "contain"
+                              }}
+                              priority={false}
+                              loading="lazy"
+                              quality={75}
+                              unoptimized
+                              placeholder="blur"
+                              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                              onError={() => handleImageError(image.id)}
+                            />
               )}
             </div>
           );
