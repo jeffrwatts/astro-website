@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { fetchManifestArray } from "@/lib/gcs";
 
 type ImageItem = {
   id: string;
@@ -13,36 +12,12 @@ type ImageItem = {
   height: number;
 };
 
-export default function SimpleGallery() {
-  const [images, setImages] = useState<ImageItem[]>([]);
+type Props = {
+  images: ImageItem[];
+};
+
+export default function SimpleGallery({ images }: Props) {
   const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadImages = async () => {
-      try {
-        const manifest = await fetchManifestArray();
-        const imageItems: ImageItem[] = manifest
-          .filter((item) => item && typeof item.imageFilename === "string" && /\.(jpe?g|png|webp|tiff?)$/i.test(item.imageFilename))
-          .map((item) => ({
-            id: item.imageFilename,
-            src: `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${item.imageFilename}`,
-            title: item.displayName || item.imageFilename,
-            description: `Astrophotography image: ${item.displayName || item.imageFilename}`,
-            width: item.width || 1600,
-            height: item.height || 1200,
-          }));
-        
-        setImages(imageItems);
-      } catch (error) {
-        console.error("Failed to load images:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadImages();
-  }, []);
 
   const getCurrentIndex = useCallback(() => {
     if (!selectedImage) return -1;
@@ -83,43 +58,37 @@ export default function SimpleGallery() {
 
   return (
     <div style={{ padding: "20px" }}>
-      {loading ? (
-        <div style={{ color: "#fff", textAlign: "center", padding: "40px" }}>
-          Loading images...
-        </div>
-      ) : (
-        <>
-          {/* Image Grid */}
-          <div style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
-            gap: "20px"
-          }}>
-            {images.map((image) => (
-              <div
-                key={image.id}
-                onClick={() => setSelectedImage(image)}
-                style={{
-                  cursor: "pointer",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                  border: "1px solid rgba(255, 255, 255, 0.1)"
-                }}
-              >
-                <Image
-                  src={image.src}
-                  alt={image.title}
-                  width={image.width}
-                  height={image.height}
-                  style={{
-                    width: "100%",
-                    height: "200px",
-                    objectFit: "cover"
-                  }}
-                />
-              </div>
-            ))}
+      {/* Image Grid */}
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
+        gap: "20px"
+      }}>
+        {images.map((image) => (
+          <div
+            key={image.id}
+            onClick={() => setSelectedImage(image)}
+            style={{
+              cursor: "pointer",
+              borderRadius: "4px",
+              overflow: "hidden",
+              border: "1px solid rgba(255, 255, 255, 0.1)"
+            }}
+          >
+            <Image
+              src={image.src}
+              alt={image.title}
+              width={image.width}
+              height={image.height}
+              style={{
+                width: "100%",
+                height: "200px",
+                objectFit: "cover"
+              }}
+            />
           </div>
+        ))}
+      </div>
 
       {/* Detail View */}
       {selectedImage && (
@@ -239,8 +208,6 @@ export default function SimpleGallery() {
             <p style={{ color: "#ccc", lineHeight: "1.6", fontSize: "16px" }}>{selectedImage.description}</p>
           </div>
         </div>
-      )}
-        </>
       )}
     </div>
   );
