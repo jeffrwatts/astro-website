@@ -6,7 +6,7 @@ declare module 'lightgallery' {
   }
   
   interface LightGalleryOptions {
-    plugins?: any[];
+    plugins?: unknown[];
     mode?: string;
     cssEasing?: string;
     speed?: number;
@@ -23,7 +23,7 @@ declare module 'lightgallery' {
     enableDrag?: boolean;
     enableSwipe?: boolean;
     dynamic?: boolean;
-    dynamicEl?: any[];
+    dynamicEl?: unknown[];
     index?: number;
     fullScreen?: boolean;
     zoom?: boolean;
