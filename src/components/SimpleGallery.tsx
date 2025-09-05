@@ -92,9 +92,9 @@ export default function SimpleGallery({ images }: Props) {
     <div style={{ padding: "12px" }}>
       {/* Image Grid */}
       <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", 
-        gap: "12px"
+        columnCount: "auto",
+        columnWidth: "250px",
+        columnGap: "12px"
       }}>
         {images.map((image) => {
           const hasFailed = failedImages.has(image.id);
@@ -107,7 +107,11 @@ export default function SimpleGallery({ images }: Props) {
                 cursor: hasFailed ? "default" : "pointer",
                 borderRadius: "12px",
                 overflow: "hidden",
-                opacity: hasFailed ? 0.5 : 1
+                opacity: hasFailed ? 0.5 : 1,
+                breakInside: "avoid",
+                marginBottom: "12px",
+                display: "inline-block",
+                width: "100%"
               }}
             >
               {hasFailed ? (
