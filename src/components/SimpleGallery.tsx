@@ -84,18 +84,39 @@ export default function SimpleGallery({ images }: Props) {
       }
     };
 
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+    };
+
     if (selectedImage) {
       // Prevent background scrolling when detail view is open
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${window.scrollY}px`;
+      
+      // Prevent touch scrolling on mobile
+      document.addEventListener('touchmove', preventScroll, { passive: false });
+      document.addEventListener('wheel', preventScroll, { passive: false });
       document.addEventListener('keydown', handleKeyPress);
     } else {
       // Restore scrolling when detail view is closed
-      document.body.style.overflow = 'unset';
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
 
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener('touchmove', preventScroll);
+      document.removeEventListener('wheel', preventScroll);
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
     };
   }, [selectedImage, goToPrevious, goToNext]);
 
