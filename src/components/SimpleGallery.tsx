@@ -1,7 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import Image from "next/image";
+import "lightgallery/css/lightgallery.css";
+import "lightgallery/css/lg-zoom.css";
 
 // Hardcoded test images
 const testImages = [
@@ -26,23 +28,55 @@ const testImages = [
 ];
 
 export default function SimpleGallery() {
+  const galleryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (galleryRef.current && typeof window !== 'undefined') {
+      const initGallery = async () => {
+        const lightGallery = (await import("lightgallery")).default;
+        const lgZoom = (await import("lg-zoom")).default;
+        
+        const gallery = lightGallery(galleryRef.current!, {
+          plugins: [lgZoom],
+          speed: 500,
+          download: false,
+          zoom: true,
+          actualSize: true,
+          scale: 1
+        });
+
+        return () => {
+          gallery.destroy();
+        };
+      };
+
+      initGallery();
+    }
+  }, []);
+
   return (
     <div style={{ padding: "20px" }}>
-      <h1 style={{ color: "#fff", marginBottom: "20px" }}>Simple Gallery</h1>
+      <h1 style={{ color: "#fff", marginBottom: "20px" }}>LightGallery v2</h1>
       
-      <div style={{ 
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-        gap: "20px"
-      }}>
+      <div 
+        ref={galleryRef}
+        style={{ 
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: "20px"
+        }}
+      >
         {testImages.map((image) => (
-          <div
+          <a
             key={image.id}
+            href={image.src}
+            data-sub-html={`<h4>${image.title}</h4><p>${image.description}</p>`}
             style={{
               cursor: "pointer",
               borderRadius: "8px",
               overflow: "hidden",
-              backgroundColor: "#333"
+              backgroundColor: "#333",
+              textDecoration: "none"
             }}
           >
             <Image
@@ -64,7 +98,7 @@ export default function SimpleGallery() {
               <h3 style={{ margin: "0 0 5px 0", fontSize: "16px" }}>{image.title}</h3>
               <p style={{ margin: "0", fontSize: "14px", color: "#ccc" }}>{image.description}</p>
             </div>
-          </div>
+          </a>
         ))}
       </div>
     </div>
