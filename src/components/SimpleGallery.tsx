@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 
 type ImageItem = {
@@ -25,6 +25,7 @@ export default function SimpleGallery({ images }: Props) {
   const [isDragging, setIsDragging] = useState(false);
   const [mouseStart, setMouseStart] = useState<{ x: number; y: number } | null>(null);
   const [lastPinchDistance, setLastPinchDistance] = useState<number | null>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
 
   const handleImageError = (imageId: string) => {
     setFailedImages(prev => new Set(prev).add(imageId));
