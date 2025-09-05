@@ -28,7 +28,7 @@ type Props = {
 
 export default function LightGalleryComponent({ items, currentIndex, onClose }: Props) {
   const galleryRef = useRef<HTMLDivElement>(null);
-  const lightGalleryRef = useRef<LightGallery | null>(null);
+  const lightGalleryRef = useRef<any>(null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
