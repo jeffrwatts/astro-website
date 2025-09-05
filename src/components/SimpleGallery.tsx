@@ -25,6 +25,25 @@ export default function SimpleGallery({ images }: Props) {
     setFailedImages(prev => new Set(prev).add(imageId));
   };
 
+  const getCurrentIndex = useCallback(() => {
+    if (!selectedImage) return -1;
+    return images.findIndex(img => img.id === selectedImage.id);
+  }, [selectedImage, images]);
+
+  const goToPrevious = useCallback(() => {
+    const currentIndex = getCurrentIndex();
+    if (currentIndex > 0) {
+      setSelectedImage(images[currentIndex - 1]);
+    }
+  }, [images, getCurrentIndex]);
+
+  const goToNext = useCallback(() => {
+    const currentIndex = getCurrentIndex();
+    if (currentIndex < images.length - 1) {
+      setSelectedImage(images[currentIndex + 1]);
+    }
+  }, [images, getCurrentIndex]);
+
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     setTouchStart({ x: touch.clientX, y: touch.clientY });
@@ -50,25 +69,6 @@ export default function SimpleGallery({ images }: Props) {
     
     setTouchStart(null);
   }, [touchStart, goToPrevious, goToNext]);
-
-  const getCurrentIndex = useCallback(() => {
-    if (!selectedImage) return -1;
-    return images.findIndex(img => img.id === selectedImage.id);
-  }, [selectedImage, images]);
-
-  const goToPrevious = useCallback(() => {
-    const currentIndex = getCurrentIndex();
-    if (currentIndex > 0) {
-      setSelectedImage(images[currentIndex - 1]);
-    }
-  }, [images, getCurrentIndex]);
-
-  const goToNext = useCallback(() => {
-    const currentIndex = getCurrentIndex();
-    if (currentIndex < images.length - 1) {
-      setSelectedImage(images[currentIndex + 1]);
-    }
-  }, [images, getCurrentIndex]);
 
   // Keyboard navigation
   useEffect(() => {
