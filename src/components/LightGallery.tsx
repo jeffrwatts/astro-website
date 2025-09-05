@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import LightGallery from 'lightgallery';
 import lgThumbnail from 'lg-thumbnail';
 import lgZoom from 'lg-zoom';
@@ -37,9 +37,14 @@ type Props = {
 export default function LightGalleryComponent({ items, currentIndex, onClose }: Props) {
   const galleryRef = useRef<HTMLDivElement>(null);
   const lightGalleryRef = useRef<LightGallery | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (!galleryRef.current || lightGalleryRef.current) return;
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient || !galleryRef.current || lightGalleryRef.current) return;
 
     console.log('LightGallery options:', {
       items: items.length,
@@ -109,7 +114,11 @@ export default function LightGalleryComponent({ items, currentIndex, onClose }: 
         lightGalleryRef.current = null;
       }
     };
-  }, [currentIndex, onClose, items]);
+  }, [currentIndex, onClose, items, isClient]);
+
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div
