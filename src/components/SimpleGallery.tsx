@@ -19,19 +19,9 @@ type Props = {
 export default function SimpleGallery({ images }: Props) {
   const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
-  const [detailImageLoading, setDetailImageLoading] = useState(false);
 
   const handleImageError = (imageId: string) => {
     setFailedImages(prev => new Set(prev).add(imageId));
-  };
-
-  const handleDetailImageLoad = () => {
-    setDetailImageLoading(false);
-  };
-
-  const handleDetailImageError = () => {
-    setDetailImageLoading(false);
-    console.error("Failed to load detail image:", selectedImage?.src);
   };
 
   const getCurrentIndex = useCallback(() => {
@@ -42,7 +32,6 @@ export default function SimpleGallery({ images }: Props) {
   const goToPrevious = useCallback(() => {
     const currentIndex = getCurrentIndex();
     if (currentIndex > 0) {
-      setDetailImageLoading(true);
       setSelectedImage(images[currentIndex - 1]);
     }
   }, [images, getCurrentIndex]);
@@ -50,7 +39,6 @@ export default function SimpleGallery({ images }: Props) {
   const goToNext = useCallback(() => {
     const currentIndex = getCurrentIndex();
     if (currentIndex < images.length - 1) {
-      setDetailImageLoading(true);
       setSelectedImage(images[currentIndex + 1]);
     }
   }, [images, getCurrentIndex]);
@@ -87,7 +75,7 @@ export default function SimpleGallery({ images }: Props) {
           return (
             <div
               key={image.id}
-              onClick={() => !hasFailed && (setDetailImageLoading(true), setSelectedImage(image))}
+              onClick={() => !hasFailed && setSelectedImage(image)}
               style={{
                 cursor: hasFailed ? "default" : "pointer",
                 borderRadius: "4px",
@@ -225,31 +213,16 @@ export default function SimpleGallery({ images }: Props) {
             justifyContent: "center",
             padding: "80px 20px 20px 20px"
           }}>
-            {detailImageLoading && (
-              <div style={{
-                color: "#fff",
-                fontSize: "18px",
-                textAlign: "center"
-              }}>
-                Loading image...
-              </div>
-            )}
-            <Image
+            <img
               src={selectedImage.src}
               alt={selectedImage.title}
-              width={selectedImage.width}
-              height={selectedImage.height}
               style={{
                 maxWidth: "100%",
                 maxHeight: "100%",
-                objectFit: "contain",
-                display: detailImageLoading ? "none" : "block"
+                objectFit: "contain"
               }}
-              priority={true}
-              quality={90}
-              unoptimized
-              onLoad={handleDetailImageLoad}
-              onError={handleDetailImageError}
+              onLoad={() => console.log("Detail image loaded:", selectedImage.src)}
+              onError={(e) => console.error("Detail image failed:", selectedImage.src, e)}
             />
           </div>
 
