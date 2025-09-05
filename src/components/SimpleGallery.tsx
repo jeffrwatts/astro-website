@@ -20,6 +20,10 @@ export default function SimpleGallery({ images }: Props) {
   const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const handleImageError = (imageId: string) => {
     setFailedImages(prev => new Set(prev).add(imageId));
@@ -33,42 +37,99 @@ export default function SimpleGallery({ images }: Props) {
   const goToPrevious = useCallback(() => {
     const currentIndex = getCurrentIndex();
     if (currentIndex > 0) {
+      resetZoom();
       setSelectedImage(images[currentIndex - 1]);
     }
-  }, [images, getCurrentIndex]);
+  }, [images, getCurrentIndex, resetZoom]);
 
   const goToNext = useCallback(() => {
     const currentIndex = getCurrentIndex();
     if (currentIndex < images.length - 1) {
+      resetZoom();
       setSelectedImage(images[currentIndex + 1]);
     }
-  }, [images, getCurrentIndex]);
+  }, [images, getCurrentIndex, resetZoom]);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setTouchStart({ x: touch.clientX, y: touch.clientY });
+  const resetZoom = useCallback(() => {
+    setZoomLevel(1);
+    setImagePosition({ x: 0, y: 0 });
   }, []);
 
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!touchStart) return;
-    
-    const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - touchStart.x;
-    const deltaY = touch.clientY - touchStart.y;
-    
-    // Only handle horizontal swipes (ignore vertical scrolling)
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-      if (deltaX > 0) {
-        // Swipe right - go to previous
-        goToPrevious();
-      } else {
-        // Swipe left - go to next
-        goToNext();
-      }
+  const handleImageClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (zoomLevel === 1) {
+      setZoomLevel(2);
+    } else {
+      resetZoom();
     }
-    
-    setTouchStart(null);
-  }, [touchStart, goToPrevious, goToNext]);
+  }, [zoomLevel, resetZoom]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      setTouchStart({ x: touch.clientX, y: touch.clientY });
+      setIsDragging(false);
+    } else if (e.touches.length === 2) {
+      // Pinch zoom - prevent default behavior
+      e.preventDefault();
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1 && zoomLevel > 1) {
+      // Pan when zoomed
+      e.preventDefault();
+      if (touchStart) {
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - touchStart.x;
+        const deltaY = touch.clientY - touchStart.y;
+        
+        setImagePosition(prev => ({
+          x: prev.x + deltaX,
+          y: prev.y + deltaY
+        }));
+        setTouchStart({ x: touch.clientX, y: touch.clientY });
+        setIsDragging(true);
+      }
+    } else if (e.touches.length === 2) {
+      // Pinch zoom
+      e.preventDefault();
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.sqrt(
+        Math.pow(touch2.clientX - touch1.clientX, 2) + 
+        Math.pow(touch2.clientY - touch1.clientY, 2)
+      );
+      
+      // Simple zoom based on distance (you can make this more sophisticated)
+      const newZoom = Math.max(1, Math.min(3, distance / 200));
+      setZoomLevel(newZoom);
+    }
+  }, [touchStart, zoomLevel]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 0) {
+      if (touchStart && !isDragging && zoomLevel === 1) {
+        // Single tap - navigate
+        const touch = e.changedTouches[0];
+        const deltaX = touch.clientX - touchStart.x;
+        const deltaY = touch.clientY - touchStart.y;
+        
+        // Only handle horizontal swipes (ignore vertical scrolling)
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+          if (deltaX > 0) {
+            // Swipe right - go to previous
+            goToPrevious();
+          } else {
+            // Swipe left - go to next
+            goToNext();
+          }
+        }
+      }
+      setTouchStart(null);
+      setIsDragging(false);
+    }
+  }, [touchStart, isDragging, zoomLevel, goToPrevious, goToNext]);
 
   // Keyboard navigation and scroll prevention
   useEffect(() => {
@@ -199,6 +260,7 @@ export default function SimpleGallery({ images }: Props) {
             overflow: "hidden"
           }}
           onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
           {/* Subtle close button */}
@@ -295,15 +357,20 @@ export default function SimpleGallery({ images }: Props) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "0"
+            padding: "0",
+            overflow: "hidden"
           }}>
             <img
               src={selectedImage.src}
               alt={selectedImage.title}
+              onClick={handleImageClick}
               style={{
                 maxWidth: "100%",
                 maxHeight: "100%",
-                objectFit: "contain"
+                objectFit: "contain",
+                transform: `scale(${zoomLevel}) translate(${imagePosition.x / zoomLevel}px, ${imagePosition.y / zoomLevel}px)`,
+                transition: zoomLevel === 1 ? "transform 0.3s ease" : "none",
+                cursor: zoomLevel === 1 ? "zoom-in" : "zoom-out"
               }}
               onLoad={() => console.log("Detail image loaded:", selectedImage.src)}
               onError={(e) => console.error("Detail image failed:", selectedImage.src, e)}
