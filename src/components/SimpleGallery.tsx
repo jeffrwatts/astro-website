@@ -18,6 +18,11 @@ type Props = {
 
 export default function SimpleGallery({ images }: Props) {
   const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+
+  const handleImageError = (imageId: string) => {
+    setFailedImages(prev => new Set(prev).add(imageId));
+  };
 
   const getCurrentIndex = useCallback(() => {
     if (!selectedImage) return -1;
@@ -64,30 +69,57 @@ export default function SimpleGallery({ images }: Props) {
         gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
         gap: "20px"
       }}>
-        {images.map((image) => (
-          <div
-            key={image.id}
-            onClick={() => setSelectedImage(image)}
-            style={{
-              cursor: "pointer",
-              borderRadius: "4px",
-              overflow: "hidden",
-              border: "1px solid rgba(255, 255, 255, 0.1)"
-            }}
-          >
-            <Image
-              src={image.src}
-              alt={image.title}
-              width={image.width}
-              height={image.height}
+        {images.map((image) => {
+          const hasFailed = failedImages.has(image.id);
+          
+          return (
+            <div
+              key={image.id}
+              onClick={() => !hasFailed && setSelectedImage(image)}
               style={{
-                width: "100%",
-                height: "200px",
-                objectFit: "cover"
+                cursor: hasFailed ? "default" : "pointer",
+                borderRadius: "4px",
+                overflow: "hidden",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                opacity: hasFailed ? 0.5 : 1
               }}
-            />
-          </div>
-        ))}
+            >
+              {hasFailed ? (
+                <div style={{
+                  width: "100%",
+                  height: "200px",
+                  backgroundColor: "#333",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#666",
+                  fontSize: "14px"
+                }}>
+                  Failed to load
+                </div>
+              ) : (
+                <Image
+                  src={image.src}
+                  alt={image.title}
+                  width={image.width}
+                  height={image.height}
+                  style={{
+                    width: "100%",
+                    height: "200px",
+                    objectFit: "cover"
+                  }}
+                  priority={false}
+                  loading="lazy"
+                  quality={75}
+                  unoptimized
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                  onError={() => handleImageError(image.id)}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Detail View */}
