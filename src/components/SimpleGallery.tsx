@@ -67,14 +67,11 @@ export default function SimpleGallery() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1 style={{ color: "#fff", marginBottom: "30px" }}>Simple Gallery</h1>
-      
       {/* Image Grid */}
       <div style={{ 
         display: "grid", 
         gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
-        gap: "20px",
-        marginBottom: "40px"
+        gap: "20px"
       }}>
         {hardcodedImages.map((image) => (
           <div
@@ -82,10 +79,9 @@ export default function SimpleGallery() {
             onClick={() => setSelectedImage(image)}
             style={{
               cursor: "pointer",
-              borderRadius: "8px",
+              borderRadius: "4px",
               overflow: "hidden",
-              backgroundColor: "#333",
-              padding: "10px"
+              border: "1px solid rgba(255, 255, 255, 0.1)"
             }}
           >
             <Image
@@ -96,11 +92,9 @@ export default function SimpleGallery() {
               style={{
                 width: "100%",
                 height: "200px",
-                objectFit: "cover",
-                borderRadius: "4px"
+                objectFit: "cover"
               }}
             />
-            <h3 style={{ color: "#fff", margin: "10px 0 5px 0" }}>{image.title}</h3>
           </div>
         ))}
       </div>
