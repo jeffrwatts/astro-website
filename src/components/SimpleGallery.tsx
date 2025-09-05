@@ -125,7 +125,7 @@ export default function SimpleGallery({ images }: Props) {
       {/* Image Grid */}
       <div style={{ 
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
         gridAutoRows: "min-content",
         gap: "12px"
       }}>
