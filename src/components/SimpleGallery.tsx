@@ -89,12 +89,12 @@ export default function SimpleGallery({ images }: Props) {
   }, [selectedImage, goToPrevious, goToNext]);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "12px" }}>
       {/* Image Grid */}
       <div style={{ 
         display: "grid", 
-        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
-        gap: "20px"
+        gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", 
+        gap: "12px"
       }}>
         {images.map((image) => {
           const hasFailed = failedImages.has(image.id);
