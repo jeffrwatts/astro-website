@@ -70,7 +70,7 @@ export default function SimpleGallery({ images }: Props) {
     setTouchStart(null);
   }, [touchStart, goToPrevious, goToNext]);
 
-  // Keyboard navigation
+  // Keyboard navigation and scroll prevention
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (!selectedImage) return;
@@ -84,8 +84,19 @@ export default function SimpleGallery({ images }: Props) {
       }
     };
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
+    if (selectedImage) {
+      // Prevent background scrolling when detail view is open
+      document.body.style.overflow = 'hidden';
+      document.addEventListener('keydown', handleKeyPress);
+    } else {
+      // Restore scrolling when detail view is closed
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+      document.body.style.overflow = 'unset';
+    };
   }, [selectedImage, goToPrevious, goToNext]);
 
   return (
