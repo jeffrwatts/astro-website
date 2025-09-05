@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import PhotoSwipeGallery from "@/components/PhotoSwipeGallery";
+import LightGalleryComponent from "@/components/LightGallery";
 
 type Props = {
   items: Array<{
@@ -15,15 +15,15 @@ type Props = {
 };
 
 export default function Gallery({ items }: Props) {
-  const [isPhotoSwipeOpen, setIsPhotoSwipeOpen] = useState(false);
+  const [isLightGalleryOpen, setIsLightGalleryOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleImageClick = (index: number) => {
     setCurrentIndex(index);
-    setIsPhotoSwipeOpen(true);
+    setIsLightGalleryOpen(true);
   };
 
-  const photoSwipeItems = items.map((item) => {
+  const lightGalleryItems = items.map((item) => {
     // Use actual dimensions from manifest, or use a more appropriate default for astrophotography
     const width = item.width || 1600;
     const height = item.height || 1200; // 4:3 aspect ratio, common for astrophotography
@@ -107,11 +107,11 @@ export default function Gallery({ items }: Props) {
         )}
       </main>
 
-      {isPhotoSwipeOpen && (
-        <PhotoSwipeGallery
-          items={photoSwipeItems}
+      {isLightGalleryOpen && (
+        <LightGalleryComponent
+          items={lightGalleryItems}
           currentIndex={currentIndex}
-          onClose={() => setIsPhotoSwipeOpen(false)}
+          onClose={() => setIsLightGalleryOpen(false)}
         />
       )}
     </>
