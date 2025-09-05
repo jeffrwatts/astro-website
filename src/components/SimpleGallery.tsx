@@ -23,7 +23,6 @@ export default function SimpleGallery({ images }: Props) {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const handleImageError = (imageId: string) => {
     setFailedImages(prev => new Set(prev).add(imageId));
@@ -33,6 +32,11 @@ export default function SimpleGallery({ images }: Props) {
     if (!selectedImage) return -1;
     return images.findIndex(img => img.id === selectedImage.id);
   }, [selectedImage, images]);
+
+  const resetZoom = useCallback(() => {
+    setZoomLevel(1);
+    setImagePosition({ x: 0, y: 0 });
+  }, []);
 
   const goToPrevious = useCallback(() => {
     const currentIndex = getCurrentIndex();
@@ -49,11 +53,6 @@ export default function SimpleGallery({ images }: Props) {
       setSelectedImage(images[currentIndex + 1]);
     }
   }, [images, getCurrentIndex, resetZoom]);
-
-  const resetZoom = useCallback(() => {
-    setZoomLevel(1);
-    setImagePosition({ x: 0, y: 0 });
-  }, []);
 
   const handleImageClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
