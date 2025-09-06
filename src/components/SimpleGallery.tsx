@@ -32,11 +32,13 @@ export default function SimpleGallery() {
 
   useEffect(() => {
     if (galleryRef.current && typeof window !== 'undefined') {
+      let gallery: any = null;
+      
       const initGallery = async () => {
         const lightGallery = (await import("lightgallery")).default;
         const lgZoom = (await import("lg-zoom")).default;
         
-        const gallery = lightGallery(galleryRef.current!, {
+        gallery = lightGallery(galleryRef.current!, {
           plugins: [lgZoom],
           speed: 500,
           download: false,
@@ -44,13 +46,15 @@ export default function SimpleGallery() {
           actualSize: true,
           scale: 1
         });
-
-        return () => {
-          gallery.destroy();
-        };
       };
 
       initGallery();
+
+      return () => {
+        if (gallery) {
+          gallery.destroy();
+        }
+      };
     }
   }, []);
 
