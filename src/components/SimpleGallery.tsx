@@ -32,6 +32,7 @@ export default function SimpleGallery() {
 
   useEffect(() => {
     if (galleryRef.current && typeof window !== 'undefined') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let gallery: any = null;
       
       const initGallery = async () => {
