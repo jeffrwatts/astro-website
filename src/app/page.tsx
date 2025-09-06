@@ -26,9 +26,9 @@ export default function Home() {
     const loadSpotlight = () => {
       return new Promise((resolve, reject) => {
         // Check if already loaded
-        if (window.Spotlight) {
-          setSpotlight(window.Spotlight);
-          resolve(window.Spotlight);
+        if ((window as any).Spotlight) {
+          setSpotlight((window as any).Spotlight);
+          resolve((window as any).Spotlight);
           return;
         }
 
@@ -42,8 +42,8 @@ export default function Home() {
         const script = document.createElement('script');
         script.src = '/spotlight.bundle.js';
         script.onload = () => {
-          setSpotlight(window.Spotlight);
-          resolve(window.Spotlight);
+          setSpotlight((window as any).Spotlight);
+          resolve((window as any).Spotlight);
         };
         script.onerror = () => {
           console.error('Failed to load Spotlight.js bundle');
