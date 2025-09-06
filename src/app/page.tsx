@@ -26,8 +26,11 @@ export default function Home() {
     const loadSpotlight = () => {
       return new Promise((resolve, reject) => {
         // Check if already loaded
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((window as any).Spotlight) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setSpotlight((window as any).Spotlight);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           resolve((window as any).Spotlight);
           return;
         }
@@ -42,7 +45,9 @@ export default function Home() {
         const script = document.createElement('script');
         script.src = '/spotlight.bundle.js';
         script.onload = () => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setSpotlight((window as any).Spotlight);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           resolve((window as any).Spotlight);
         };
         script.onerror = () => {
