@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Cinzel } from "next/font/google";
 import "./globals.css";
-import SiteHeader from "@/components/SiteHeader";
-import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,10 +30,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link 
+          rel="stylesheet" 
+          href="/spotlight.min.css"
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable}`}>
-        <Suspense fallback={null}>
-          <SiteHeader />
-        </Suspense>
         {children}
       </body>
     </html>

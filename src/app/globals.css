@@ -1,15 +1,16 @@
+/* Spotlight.js Integration - loaded via CDN */
+
 :root {
-  --background: #2a2a2a; /* lighter neutral gray */
-  --foreground: #e5e7eb; /* gray-200 */
-  --muted: #9ca3af;      /* gray-400 */
-  --panel: rgba(55, 65, 81, 0.8); /* gray-700 */
+  --background: #1a1a1a;
+  --foreground: #ffffff;
+  --muted: #888888;
+  --accent: #4a9eff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #2a2a2a; /* lighter neutral gray */
-    --foreground: #e5e7eb;
-  }
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 html,
@@ -21,129 +22,129 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Loading spinner animation */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* Loading and Error States */
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
 }
 
-/* Detail layout responsive: side-by-side on wide screens, stacked on narrow */
-.detailLayout {
+.loading-container h1,
+.error-container h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--foreground);
+}
+
+.loading-container p,
+.error-container p {
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+/* Gallery Container */
+.gallery-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Gallery Grid */
+.gallery-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 24px;
-  align-items: start;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
-.detailAside {
-  position: sticky;
-  top: 24px;
-  align-self: start;
+/* Gallery Item */
+.gallery-item {
+  position: relative;
+  cursor: pointer;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #2a2a2a;
 }
 
-@media (max-width: 900px) {
-  .detailLayout {
-    grid-template-columns: 1fr;
-  }
-  .detailAside {
-    position: static;
-    top: auto;
-  }
+.gallery-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-/* On small screens in landscape, return to two-column layout */
-@media (max-width: 900px) and (orientation: landscape) {
-  .detailLayout {
-    grid-template-columns: minmax(0, 1fr) 280px;
-  }
-  .detailAside {
-    position: sticky;
-    top: 12px;
-    align-self: start;
-  }
+.gallery-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
+.gallery-item:hover .gallery-image {
+  transform: scale(1.05);
+}
+
+/* Gallery Overlay */
+.gallery-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  padding: 1.5rem 1rem 1rem;
+  color: white;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .gallery-overlay {
+  transform: translateY(0);
+}
+
+.gallery-overlay h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-cinzel);
+}
+
+.gallery-overlay p {
+  font-size: 0.9rem;
+  color: var(--muted);
   margin: 0;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .gallery-container {
+    padding: 1rem;
+  }
+  
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .gallery-image {
+    height: 200px;
   }
 }
 
-/* Responsive Gallery Grid */
-.gallery-grid {
-  display: grid;
-  gap: 10px;
-  padding: 10px;
-  max-width: 100vw;
-}
-
-/* Mobile Portrait: 1 column */
-@media (max-width: 480px) and (orientation: portrait) {
+@media (max-width: 480px) {
   .gallery-grid {
     grid-template-columns: 1fr;
   }
-}
-
-/* Mobile Landscape: 2 columns */
-@media (max-width: 768px) and (orientation: landscape) {
-  .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
+  
+  .gallery-image {
+    height: 250px;
   }
-}
-
-/* Tablet Portrait: 2 columns */
-@media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) {
-  .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Tablet Landscape: 2 columns */
-@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
-  .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Laptop/Desktop: 3 columns */
-@media (min-width: 769px) and (orientation: portrait) {
-  .gallery-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Desktop Landscape: 3 columns */
-@media (min-width: 1025px) and (orientation: landscape) {
-  .gallery-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Large Desktop: 4 columns */
-@media (min-width: 1200px) {
-  .gallery-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* Spotlight.js Customizations */
-/* Let Spotlight.js handle auto-hide functionality */
-.spotlight-description {
-  display: none !important;
 }

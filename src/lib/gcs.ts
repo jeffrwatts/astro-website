@@ -16,7 +16,7 @@ interface ManifestEntry {
 
 export async function fetchManifestArray(): Promise<ManifestEntry[]> {
   try {
-    const res = await fetch(`https://storage.googleapis.com/${BUCKET}/web_images.json`, { next: { revalidate: 600 } });
+    const res = await fetch('/api/manifest');
     if (!res.ok) return [];
     const arr = (await res.json()) as ManifestEntry[];
     return Array.isArray(arr) ? arr : [];

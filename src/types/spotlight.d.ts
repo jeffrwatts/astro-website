@@ -3,3 +3,9 @@ declare module 'spotlight.js' {
   const Spotlight: any;
   export default Spotlight;
 }
+
+declare global {
+  interface Window {
+    Spotlight: any;
+  }
+}
