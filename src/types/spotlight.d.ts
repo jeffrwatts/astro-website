@@ -6,6 +6,6 @@ declare module 'spotlight.js' {
 
 declare global {
   interface Window {
-    Spotlight: any;
+    Spotlight: unknown;
   }
 }

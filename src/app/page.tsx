@@ -19,7 +19,7 @@ interface ManifestEntry {
 export default function Home() {
   const [images, setImages] = useState<ManifestEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [spotlight, setSpotlight] = useState<any>(null);
+  const [spotlight, setSpotlight] = useState<unknown>(null);
 
   useEffect(() => {
     // Load Spotlight.js from local bundle

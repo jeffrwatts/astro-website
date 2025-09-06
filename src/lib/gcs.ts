@@ -1,5 +1,3 @@
-const BUCKET = "astro-website-images-astrowebsite-470903";
-
 export const revalidate = 600;
 
 interface ManifestEntry {
