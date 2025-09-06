@@ -22,7 +22,7 @@ export default function Home() {
   const [spotlight, setSpotlight] = useState<unknown>(null);
 
   useEffect(() => {
-    // Load Spotlight.js from local bundle
+    // Load Spotlight.js exactly like the working HTML example
     const loadSpotlight = () => {
       return new Promise((resolve, reject) => {
         // Check if already loaded
@@ -41,7 +41,7 @@ export default function Home() {
         link.href = '/spotlight.min.css';
         document.head.appendChild(link);
 
-        // Load the script from local bundle
+        // Load the script exactly like the working example: <script src="dist/spotlight.bundle.js"></script>
         const script = document.createElement('script');
         script.src = '/spotlight.bundle.js';
         script.onload = () => {
@@ -74,22 +74,30 @@ export default function Home() {
     loadImages();
   }, []);
 
+  // Create gallery exactly like the working example
+  const createGallery = () => {
+    return images.map((image) => ({
+      title: image.displayName || image.objectId,
+      description: image.constellation || "",
+      src: `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${image.imageFilename}`
+    }));
+  };
+
+  // Handle image click exactly like the working example's showGallery function
   const handleImageClick = (index: number) => {
     if (spotlight && images.length > 0) {
-      // Create gallery array from manifest data
-      const gallery = images.map((image) => ({
-        title: image.displayName || image.objectId,
-        description: image.constellation || "",
-        src: `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${image.imageFilename}`
-      }));
+      const gallery = createGallery();
       
-      // Show gallery using Spotlight.js API with infinite scrolling and autohide all
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (spotlight as any).show(gallery, {
-        index: index,
+      // Use the exact same options structure as the working example
+      const options = {
+        index: index + 1, // The working example uses 1-based indexing
         infinite: true,
         autohide: "all"
-      });
+      };
+      
+      // Call exactly like the working example: Spotlight.show(gallery, options);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (spotlight as any).show(gallery, options);
     }
   };
 
