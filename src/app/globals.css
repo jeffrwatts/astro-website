@@ -1,5 +1,4 @@
-/* Spotlight.js Integration - loaded via local file */
-@import url('/spotlight.min.css');
+/* Spotlight.js Integration - CSS loaded via script tag */
 
 :root {
   --background: #1a1a1a;

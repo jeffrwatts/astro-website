@@ -32,6 +32,12 @@ export default function Home() {
           return;
         }
 
+        // Load the CSS first
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/spotlight.min.css';
+        document.head.appendChild(link);
+
         // Load the script from local bundle
         const script = document.createElement('script');
         script.src = '/spotlight.bundle.js';
