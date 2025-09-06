@@ -36,17 +36,29 @@ export default function SimpleGallery() {
       let gallery: any = null;
       
       const initGallery = async () => {
-        const lightGallery = (await import("lightgallery")).default;
-        const lgZoom = (await import("lg-zoom")).default;
-        
-        gallery = lightGallery(galleryRef.current!, {
-          plugins: [lgZoom],
-          speed: 500,
-          download: false,
-          zoom: true,
-          actualSize: true,
-          scale: 1
-        });
+        try {
+          const lightGallery = (await import("lightgallery")).default;
+          const lgZoom = (await import("lg-zoom")).default;
+          
+          console.log("Initializing LightGallery...");
+          
+          gallery = lightGallery(galleryRef.current!, {
+            plugins: [lgZoom],
+            speed: 500,
+            download: false,
+            zoom: true,
+            actualSize: true,
+            scale: 1,
+            mode: 'lg-slide',
+            addClass: 'lg-custom',
+            backdropDuration: 300,
+            hideBarsDelay: 2000
+          });
+          
+          console.log("LightGallery initialized successfully");
+        } catch (error) {
+          console.error("Error initializing LightGallery:", error);
+        }
       };
 
       initGallery();
@@ -76,6 +88,7 @@ export default function SimpleGallery() {
             key={image.id}
             href={image.src}
             data-sub-html={`<h4>${image.title}</h4><p>${image.description}</p>`}
+            data-lg-size="1600-1200"
             style={{
               cursor: "pointer",
               borderRadius: "8px",
