@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import "lightgallery/css/lightgallery.css";
 import "lightgallery/css/lg-zoom.css";
+import "lightgallery/css/lg-thumbnail.css";
 
 // Hardcoded test images
 const testImages = [
@@ -39,11 +40,12 @@ export default function SimpleGallery() {
         try {
           const lightGallery = (await import("lightgallery")).default;
           const lgZoom = (await import("lg-zoom")).default;
+          const lgThumbnail = (await import("lg-thumbnail")).default;
           
-          console.log("Initializing LightGallery...");
+          console.log("Initializing LightGallery with React demo approach...");
           
           gallery = lightGallery(galleryRef.current!, {
-            plugins: [lgZoom],
+            plugins: [lgZoom, lgThumbnail],
             speed: 500,
             download: false,
             zoom: true,
@@ -52,7 +54,9 @@ export default function SimpleGallery() {
             mode: 'lg-slide',
             addClass: 'lg-custom',
             backdropDuration: 300,
-            hideBarsDelay: 2000
+            hideBarsDelay: 2000,
+            thumbnail: true,
+            animateThumb: true
           });
           
           console.log("LightGallery initialized successfully");
@@ -73,7 +77,7 @@ export default function SimpleGallery() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1 style={{ color: "#fff", marginBottom: "20px" }}>LightGallery v2</h1>
+      <h1 style={{ color: "#fff", marginBottom: "20px" }}>LightGallery React Demo</h1>
       
       <div 
         ref={galleryRef}

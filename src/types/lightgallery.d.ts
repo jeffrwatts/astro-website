@@ -3,3 +3,9 @@ declare module 'lg-zoom' {
   const lgZoom: any;
   export default lgZoom;
 }
+
+declare module 'lg-thumbnail' {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const lgThumbnail: any;
+  export default lgThumbnail;
+}
