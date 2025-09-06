@@ -84,7 +84,8 @@ export default function Home() {
       }));
       
       // Show gallery using Spotlight.js API with infinite scrolling and autohide all
-      spotlight.show(gallery, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (spotlight as any).show(gallery, {
         index: index,
         infinite: true,
         autohide: "all"
