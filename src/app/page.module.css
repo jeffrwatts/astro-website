@@ -54,7 +54,7 @@
   right: 0;
   width: 350px;
   height: 100vh;
-  background: var(--card);
+  background: #2a2a2a; /* Dark gray background */
   border-left: 1px solid var(--border);
   z-index: 1001; /* Higher than Spotlight.js */
   display: flex;
@@ -73,7 +73,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 20px;
-  color: var(--foreground);
+  color: #ffffff; /* White text for dark background */
   font-family: var(--font-cinzel);
 }
 
@@ -83,18 +83,18 @@
   align-items: center;
   margin-bottom: 12px;
   padding: 8px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #444444; /* Darker border for dark background */
 }
 
 .infoLabel {
   font-size: 0.9rem;
-  color: var(--muted);
+  color: #cccccc; /* Light gray for labels */
   font-weight: 500;
 }
 
 .infoValue {
   font-size: 0.9rem;
-  color: var(--foreground);
+  color: #ffffff; /* White text for values */
   font-weight: 600;
   font-family: monospace;
 }
@@ -102,11 +102,22 @@
 .imageCounter {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--foreground);
+  color: #ffffff; /* White text */
   padding: 10px 15px;
-  background: var(--muted);
+  background: #444444; /* Darker background */
   border-radius: 6px;
   text-align: center;
+}
+
+.zoomLevel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff; /* White text */
+  padding: 10px 15px;
+  background: #444444; /* Darker background */
+  border-radius: 6px;
+  text-align: center;
+  margin-top: 10px;
 }
 
 /* Controls */
@@ -141,9 +152,9 @@
 .fullscreenButton,
 .closeButton {
   padding: 10px 15px;
-  border: 1px solid var(--border);
-  background: var(--background);
-  color: var(--foreground);
+  border: 1px solid #555555;
+  background: #444444;
+  color: #ffffff;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -159,21 +170,21 @@
 }
 
 .closeButton {
-  background: var(--destructive);
+  background: #dc3545;
   color: white;
-  border-color: var(--destructive);
+  border-color: #dc3545;
 }
 
 .navButton:hover:not(:disabled),
 .zoomButton:hover,
 .fullscreenButton:hover {
-  background: var(--muted);
-  border-color: var(--foreground);
+  background: #555555;
+  border-color: #666666;
 }
 
 .closeButton:hover {
-  background: var(--destructive-hover);
-  border-color: var(--destructive-hover);
+  background: #c82333;
+  border-color: #c82333;
 }
 
 .navButton:disabled {
@@ -188,12 +199,22 @@
   right: 350px !important;
 }
 
-:global(.custom-spotlight-layout .spl-header) {
-  right: 0 !important; /* Adjust header position */
+/* Hide all Spotlight.js controls by default */
+:global(.custom-spotlight-layout .spl-header),
+:global(.custom-spotlight-layout .spl-footer),
+:global(.custom-spotlight-layout .spl-prev),
+:global(.custom-spotlight-layout .spl-next),
+:global(.custom-spotlight-layout .spl-progress) {
+  display: none !important;
 }
 
-:global(.custom-spotlight-layout .spl-footer) {
-  right: 0 !important; /* Adjust footer position */
+/* Show controls when menu class is present (for fullscreen mode) */
+:global(.custom-spotlight-layout.menu .spl-header),
+:global(.custom-spotlight-layout.menu .spl-footer),
+:global(.custom-spotlight-layout.menu .spl-prev),
+:global(.custom-spotlight-layout.menu .spl-next),
+:global(.custom-spotlight-layout.menu .spl-progress) {
+  display: block !important;
 }
 
 /* Mobile Responsive Design */

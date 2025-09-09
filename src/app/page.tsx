@@ -23,6 +23,7 @@ export default function Home() {
   const [spotlight, setSpotlight] = useState<unknown>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState(1);
 
   useEffect(() => {
     // Load Spotlight.js exactly like the working HTML example
@@ -90,6 +91,7 @@ export default function Home() {
       const gallery = createGallery();
       setSelectedIndex(index);
       setIsGalleryOpen(true);
+      setCurrentZoom(1); // Reset zoom when opening new image
       
       // Use the exact same options structure as the working example
       const options = {
@@ -104,6 +106,11 @@ export default function Home() {
       // Call exactly like the working example: Spotlight.show(gallery, options);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (spotlight as any).show(gallery, options);
+      
+      // Ensure controls are disabled initially
+      setTimeout(() => {
+        disableSpotlightControls();
+      }, 100);
     }
   };
 
@@ -114,6 +121,7 @@ export default function Home() {
     }
     setSelectedIndex(null);
     setIsGalleryOpen(false);
+    setCurrentZoom(1); // Reset zoom when closing
   };
 
   const handlePrevious = () => {
@@ -121,6 +129,7 @@ export default function Home() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (spotlight as any).prev();
       setSelectedIndex(selectedIndex - 1);
+      setCurrentZoom(1); // Reset zoom when changing images
     }
   };
 
@@ -129,27 +138,68 @@ export default function Home() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (spotlight as any).next();
       setSelectedIndex(selectedIndex + 1);
+      setCurrentZoom(1); // Reset zoom when changing images
     }
   };
 
   const handleZoomIn = () => {
     if (spotlight) {
+      const newZoom = Math.min(currentZoom * 1.2, 5); // Max zoom of 5x
+      setCurrentZoom(newZoom);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (spotlight as any).zoom(1.2);
+      (spotlight as any).zoom(newZoom);
     }
   };
 
   const handleZoomOut = () => {
     if (spotlight) {
+      const newZoom = Math.max(currentZoom / 1.2, 0.5); // Min zoom of 0.5x
+      setCurrentZoom(newZoom);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (spotlight as any).zoom(0.8);
+      (spotlight as any).zoom(newZoom);
     }
   };
 
   const handleFullscreen = () => {
     if (spotlight) {
+      // Enable Spotlight.js controls before going fullscreen
+      enableSpotlightControls();
+      
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (spotlight as any).fullscreen();
+      
+      // Listen for fullscreen change events to disable controls when exiting
+      const handleFullscreenChange = () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const isFullscreen = document.fullscreenElement || (document as any).webkitFullscreenElement || (document as any).mozFullScreenElement;
+        if (!isFullscreen) {
+          // Exited fullscreen, disable controls again
+          disableSpotlightControls();
+          document.removeEventListener('fullscreenchange', handleFullscreenChange);
+          document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+          document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+        }
+      };
+      
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+      document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    }
+  };
+
+  const enableSpotlightControls = () => {
+    // Show Spotlight.js controls
+    const spotlightElement = document.getElementById('spotlight');
+    if (spotlightElement) {
+      spotlightElement.classList.add('menu');
+    }
+  };
+
+  const disableSpotlightControls = () => {
+    // Hide Spotlight.js controls
+    const spotlightElement = document.getElementById('spotlight');
+    if (spotlightElement) {
+      spotlightElement.classList.remove('menu');
     }
   };
 
@@ -224,6 +274,10 @@ export default function Home() {
 
             <div className={styles.imageCounter}>
               {selectedIndex !== null ? selectedIndex + 1 : 0} / {images.length}
+            </div>
+            
+            <div className={styles.zoomLevel}>
+              Zoom: {Math.round(currentZoom * 100)}%
             </div>
           </div>
 
