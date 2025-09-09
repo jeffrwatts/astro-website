@@ -92,40 +92,7 @@ export default function Home() {
       const options = {
         index: index + 1, // The working example uses 1-based indexing
         infinite: true,
-        autohide: "all",
-        // Add mobile tap-to-toggle functionality
-        onshow: function() {
-          // Add tap event listener for mobile devices to toggle controls
-          const spotlightElement = document.getElementById('spotlight');
-          if (spotlightElement) {
-            const handleMobileTap = (e: TouchEvent) => {
-              // Only handle single taps (not swipes or multi-touch)
-              if (e.touches.length === 1) {
-                e.preventDefault();
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (spotlight as any).menu();
-              }
-            };
-            
-            // Add touch event listener
-            spotlightElement.addEventListener('touchstart', handleMobileTap, { passive: false });
-            
-            // Store reference for cleanup
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (spotlightElement as any)._mobileTapHandler = handleMobileTap;
-          }
-        },
-        onclose: function() {
-          // Clean up the event listener when gallery closes
-          const spotlightElement = document.getElementById('spotlight');
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if (spotlightElement && (spotlightElement as any)._mobileTapHandler) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            spotlightElement.removeEventListener('touchstart', (spotlightElement as any)._mobileTapHandler);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            delete (spotlightElement as any)._mobileTapHandler;
-          }
-        }
+        autohide: "all"
       };
       
       // Call exactly like the working example: Spotlight.show(gallery, options);
