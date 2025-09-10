@@ -123,6 +123,28 @@ body {
   margin: 0;
 }
 
+/* Responsive Grid for Thumbnail Gallery */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr); /* Default: 1 column for portrait mobile */
+  gap: 10px; /* Reduced from 20px for tighter spacing */
+  margin-bottom: 40px;
+}
+
+/* Mobile landscape: 2 columns */
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Laptop/Desktop: 3 columns */
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .gallery-container {

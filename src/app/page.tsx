@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import NextImage from "next/image";
 import { fetchManifestArray } from "@/lib/gcs";
-import styles from "./page.module.css";
 
 interface ManifestEntry {
   objectId: string;
@@ -21,9 +20,6 @@ export default function Home() {
   const [images, setImages] = useState<ManifestEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [spotlight, setSpotlight] = useState<unknown>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [currentZoom, setCurrentZoom] = useState(1);
 
   useEffect(() => {
     // Load Spotlight.js exactly like the working HTML example
@@ -89,148 +85,67 @@ export default function Home() {
   const handleImageClick = (index: number) => {
     if (spotlight && images.length > 0) {
       const gallery = createGallery();
-      setSelectedIndex(index);
-      setIsGalleryOpen(true);
-      setCurrentZoom(1); // Reset zoom when opening new image
       
       // Use the exact same options structure as the working example
       const options = {
         index: index + 1, // The working example uses 1-based indexing
         infinite: true,
-        autohide: false, // Disable autohide since we have our own controls
-        control: "", // No Spotlight controls - we'll use our own
-        // Add custom class for our layout
-        class: "custom-spotlight-layout"
+        autohide: "all"
       };
       
       // Call exactly like the working example: Spotlight.show(gallery, options);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (spotlight as any).show(gallery, options);
-      
-      // Ensure controls are disabled initially
-      setTimeout(() => {
-        disableSpotlightControls();
-      }, 100);
     }
   };
-
-  const handleClose = () => {
-    if (spotlight) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (spotlight as any).close();
-    }
-    setSelectedIndex(null);
-    setIsGalleryOpen(false);
-    setCurrentZoom(1); // Reset zoom when closing
-  };
-
-  const handlePrevious = () => {
-    if (spotlight && selectedIndex !== null && selectedIndex > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (spotlight as any).prev();
-      setSelectedIndex(selectedIndex - 1);
-      setCurrentZoom(1); // Reset zoom when changing images
-    }
-  };
-
-  const handleNext = () => {
-    if (spotlight && selectedIndex !== null && selectedIndex < images.length - 1) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (spotlight as any).next();
-      setSelectedIndex(selectedIndex + 1);
-      setCurrentZoom(1); // Reset zoom when changing images
-    }
-  };
-
-  const handleZoomIn = () => {
-    if (spotlight) {
-      const newZoom = Math.min(currentZoom * 1.2, 5); // Max zoom of 5x
-      setCurrentZoom(newZoom);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (spotlight as any).zoom(newZoom);
-    }
-  };
-
-  const handleZoomOut = () => {
-    if (spotlight) {
-      const newZoom = Math.max(currentZoom / 1.2, 0.5); // Min zoom of 0.5x
-      setCurrentZoom(newZoom);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (spotlight as any).zoom(newZoom);
-    }
-  };
-
-  const handleFullscreen = () => {
-    if (spotlight) {
-      // Enable Spotlight.js controls before going fullscreen
-      enableSpotlightControls();
-      
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (spotlight as any).fullscreen();
-      
-      // Listen for fullscreen change events to disable controls when exiting
-      const handleFullscreenChange = () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const isFullscreen = document.fullscreenElement || (document as any).webkitFullscreenElement || (document as any).mozFullScreenElement;
-        if (!isFullscreen) {
-          // Exited fullscreen, disable controls again
-          disableSpotlightControls();
-          document.removeEventListener('fullscreenchange', handleFullscreenChange);
-          document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
-          document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
-        }
-      };
-      
-      document.addEventListener('fullscreenchange', handleFullscreenChange);
-      document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-      document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-    }
-  };
-
-  const enableSpotlightControls = () => {
-    // Show Spotlight.js controls
-    const spotlightElement = document.getElementById('spotlight');
-    if (spotlightElement) {
-      spotlightElement.classList.add('menu');
-    }
-  };
-
-  const disableSpotlightControls = () => {
-    // Hide Spotlight.js controls
-    const spotlightElement = document.getElementById('spotlight');
-    if (spotlightElement) {
-      spotlightElement.classList.remove('menu');
-    }
-  };
-
-  const currentImage = selectedIndex !== null ? images[selectedIndex] : null;
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh', fontSize: '1.5rem', color: '#666' }}>
         <h1>Loading Gallery...</h1>
       </div>
     );
   }
 
   return (
-    <div className={styles.galleryContainer}>
+    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Thumbnail Grid */}
-      <div className={styles.thumbnailGrid}>
+      <div className="responsive-grid">
         {images.map((image, index) => {
           const imageUrl = `https://storage.googleapis.com/astro-website-images-astrowebsite-470903/${image.imageFilename}`;
+          
+          // Calculate aspect ratio and container dimensions
+          const imageWidth = image.width || 400;
+          const imageHeight = image.height || 300;
+          const aspectRatio = imageWidth / imageHeight;
+          
+          // Set a max width for thumbnails and calculate height based on aspect ratio
+          const maxThumbnailWidth = 400; // Increased from 300 to use more space
+          const thumbnailWidth = Math.min(maxThumbnailWidth, imageWidth);
+          const thumbnailHeight = thumbnailWidth / aspectRatio;
+          
           return (
             <div
               key={`${image.objectId}-${image.imageFilename}-${index}`}
-              className={styles.galleryItem}
+              style={{ 
+                cursor: 'pointer', 
+                borderRadius: '8px', 
+                overflow: 'hidden', 
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease', 
+                background: 'transparent', 
+                border: '1px solid rgba(255,255,255,0.1)',
+                width: `${thumbnailWidth}px`,
+                height: `${thumbnailHeight}px`,
+                justifySelf: 'center' // Center the container in the grid cell
+              }}
               onClick={() => handleImageClick(index)}
             >
               <NextImage
                 src={imageUrl}
                 alt={image.displayName || image.objectId}
-                width={image.width || 400}
-                height={image.height || 300}
-                className={styles.galleryImage}
+                width={imageWidth}
+                height={imageHeight}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
                 priority={false}
                 loading="lazy"
                 quality={75}
@@ -242,83 +157,6 @@ export default function Home() {
           );
         })}
       </div>
-
-      {/* Custom Information/Control Pane - Only visible when gallery is open */}
-      {isGalleryOpen && currentImage && (
-        <div className={styles.customInfoPane}>
-          <div className={styles.infoContent}>
-            <h2 className={styles.imageTitle}>
-              {currentImage.displayName || currentImage.objectId}
-            </h2>
-            
-            {currentImage.constellation && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Constellation:</span>
-                <span className={styles.infoValue}>{currentImage.constellation}</span>
-              </div>
-            )}
-            
-            {currentImage.ra && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Right Ascension:</span>
-                <span className={styles.infoValue}>{currentImage.ra.toFixed(4)}°</span>
-              </div>
-            )}
-            
-            {currentImage.dec && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Declination:</span>
-                <span className={styles.infoValue}>{currentImage.dec.toFixed(4)}°</span>
-              </div>
-            )}
-
-            <div className={styles.imageCounter}>
-              {selectedIndex !== null ? selectedIndex + 1 : 0} / {images.length}
-            </div>
-            
-            <div className={styles.zoomLevel}>
-              Zoom: {Math.round(currentZoom * 100)}%
-            </div>
-          </div>
-
-          <div className={styles.controls}>
-            <div className={styles.navigationControls}>
-              <button 
-                onClick={handlePrevious}
-                disabled={selectedIndex === 0}
-                className={styles.navButton}
-              >
-                Previous
-              </button>
-              <button 
-                onClick={handleNext}
-                disabled={selectedIndex === images.length - 1}
-                className={styles.navButton}
-              >
-                Next
-              </button>
-            </div>
-            
-            <div className={styles.zoomControls}>
-              <button onClick={handleZoomOut} className={styles.zoomButton}>
-                Zoom Out
-              </button>
-              <button onClick={handleZoomIn} className={styles.zoomButton}>
-                Zoom In
-              </button>
-            </div>
-            
-            <div className={styles.fullscreenControls}>
-              <button onClick={handleFullscreen} className={styles.fullscreenButton}>
-                Fullscreen
-              </button>
-              <button onClick={handleClose} className={styles.closeButton}>
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
